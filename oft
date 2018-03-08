@@ -12,7 +12,7 @@ the config_setup function. The option's result will end up in the global
 oftest.config dictionary.
 """
 
-from __future__ import print_function
+from __future__ import print_function 
 
 import sys
 import optparse
@@ -28,13 +28,13 @@ import copy
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-PY_SRC_DIR = os.path.join(ROOT_DIR, 'src', 'python')
+PY_SRC_DIR = os.path.join(ROOT_DIR, 'src', 'python') 
 if os.path.exists(os.path.join(PY_SRC_DIR, 'oftest')):
     # Running from source tree
-    sys.path.insert(0, PY_SRC_DIR)
+    sys.path.insert(0, PY_SRC_DIR) 
 
 import oftest
-from oftest import config
+from oftest import config 
 import oftest.ofutils
 import oftest.help_formatter
 import loxi
@@ -66,13 +66,13 @@ CONFIG_DEFAULT = {
 
     # Switch connection options
     "controller_host"    : "0.0.0.0",  # For passive bind
-    "controller_port"    : 6653,
+    "controller_port"    : 6633,
     "switch_ip"          : None,  # If not none, actively connect to switch
     "platform"           : "eth",
     "platform_args"      : None,
     "platform_dir"       : os.path.join(ROOT_DIR, "platforms"),
     "interfaces"         : [],
-    "openflow_version"   : "1.0",
+    "openflow_version"   : "1.4",
 
     # Logging options
     "log_file"           : "oft.log",
@@ -112,7 +112,7 @@ def config_setup():
 OFTest is a framework and set of tests for validating OpenFlow switches.
 
 The default configuration assumes that an OpenFlow 1.0 switch is attempting to
-connect to a controller on the machine running OFTest, port 6653. Additionally,
+connect to a controller on the machine running OFTest, port 6633. Additionally,
 the interfaces veth1, veth3, veth5, and veth7 should be connected to the switch's
 dataplane.
 
@@ -138,7 +138,7 @@ prefixing them with the '^' character.
         TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
         TYPE_CHECKER["interface"] = check_interface
 
-    parser = optparse.OptionParser(version="%prog 0.1",
+    parser = optparse.OptionParser(version="%prog 1.4",
                                    usage=usage,
                                    description=description,
                                    formatter=oftest.help_formatter.HelpFormatter(),
@@ -171,9 +171,9 @@ prefixing them with the '^' character.
     group.add_option("-a", "--platform-args", help="Custom arguments for the platform")
     group.add_option("--platform-dir", type="string", help="Directory containing platform modules")
     group.add_option("--interface", "-i", type="interface", dest="interfaces", metavar="INTERFACE", action="append",
-                     help="Specify a OpenFlow port number and the dataplane interface to use. May be given multiple times. Example: 1@eth1")
+                     help="Specify a port number and the dataplane interface to use. May be given multiple times. Example: 1@eth1")
     group.add_option("--of-version", "-V", dest="openflow_version", choices=loxi.version_names.values(),
-                     help="OpenFlow version to use")
+                     help="POF version to use, currently only supports 1.4")
     parser.add_option_group(group)
 
     group = optparse.OptionGroup(parser, "Logging options")
@@ -220,8 +220,8 @@ prefixing them with the '^' character.
 
     # If --test-dir wasn't given, pick one based on the OpenFlow version
     if options.test_dir == None:
-        if options.openflow_version == "1.0":
-            options.test_dir = os.path.join(ROOT_DIR, "tests")
+        if options.openflow_version == "1.4":
+            options.test_dir = os.path.join(ROOT_DIR, "tests-pof")
         else:
             options.test_dir = os.path.join(ROOT_DIR, "tests-" + options.openflow_version)
 
@@ -421,15 +421,15 @@ import oftest.testutils
 # Allow tests to import each other
 sys.path.append(config["test_dir"])
 
-test_specs = args
+test_specs = args#args is parameters setted by user
 if config["test_spec"] != "":
     logging.warning("The '--test-spec' option is deprecated.")
     test_specs += config["test_spec"].split(',')
 if config["test_file"] != None:
     with open(config["test_file"], 'r') as f:
         for line in f:
-            line, _, _ = line.partition('#') # remove comments
-            line = line.strip()
+            line, _, _ = line.partition('#') # remove comments, partition will return three parts:left of #, #, right of #
+            line = line.strip()#delete blank sign
             if line:
                 test_specs.append(line)
 if test_specs == []:
@@ -485,7 +485,7 @@ Test List:
           (mod_count, test_count))
     print("Test groups: %s" % (', '.join(sorted(all_groups))))
 
-    sys.exit(0)
+    sys.exit(0)#./oft --list will list all test, then exit
 
 test_modules = prune_tests(test_specs, test_modules, config["openflow_version"])
 

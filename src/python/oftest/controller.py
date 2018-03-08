@@ -97,7 +97,7 @@ class Controller(Thread):
     @var dbg_state Debug indication of state
     """
 
-    def __init__(self, switch=None, host='127.0.0.1', port=6653, max_pkts=1024):
+    def __init__(self, switch=None, host='127.0.0.1', port=6633, max_pkts=1024):
         Thread.__init__(self)
         # Socket related
         self.rcv_size = RCV_SIZE_DEFAULT
@@ -164,6 +164,7 @@ class Controller(Thread):
                                     socket.SOCK_STREAM, 0, socket.AI_PASSIVE)
             # Use first returned addrinfo
             (family, socktype, proto, name, sockaddr) = ai[0]
+            print(family, socktype, proto, name, sockaddr)
             self.listen_socket = socket.socket(family, socktype)
             self.listen_socket.setsockopt(socket.SOL_SOCKET,
                                           socket.SO_REUSEADDR, 1)
@@ -232,7 +233,6 @@ class Controller(Thread):
 
             #if self.filter_packet(rawmsg, hdr):
             #    continue
-
             msg = ofp.message.parse_message(rawmsg)
             if not msg:
                 self.parse_errors += 1
@@ -254,7 +254,7 @@ class Controller(Thread):
 
                 # Check if keep alive is set; if so, respond to echo requests
                 if self.keep_alive:
-                    if hdr_type == ofp.OFPT_ECHO_REQUEST:
+                    if hdr_type == ofp.POFT_ECHO_REQUEST:
                         self.logger.debug("Responding to echo request")
                         rep = ofp.message.echo_reply()
                         rep.xid = hdr_xid
@@ -263,7 +263,7 @@ class Controller(Thread):
                         continue
 
                 # Generalize to counters for all packet types?
-                if msg.type == ofp.OFPT_PACKET_IN:
+                if msg.type == ofp.POFT_PACKET_IN:
                     self.packet_in_count += 1
 
                 # Log error messages

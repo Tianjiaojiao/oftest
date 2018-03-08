@@ -74,6 +74,7 @@ class OFReader(object):
         if self.offset + offset + st.size > self.length:
             raise loxi.ProtocolError("Buffer too short")
         result = st.unpack_from(self.buf, self.start + self.offset + offset)
+        #https://docs.python.org/3/library/struct.html#struct.unpack_from
         return result
 
     def skip(self, length):

@@ -53,13 +53,24 @@ class SimpleProtocol(BaseTest):
             if self.controller.switch_addr is None:
                 raise Exception("Controller startup failed (no switch addr)")
             logging.info("Connected " + str(self.controller.switch_addr))
+
             request = ofp.message.features_request()
             reply, pkt = self.controller.transact(request)
+		
             self.assertTrue(reply is not None,
                             "Did not complete features_request for handshake")
             if reply.version == 1:
                 self.supported_actions = reply.actions
                 logging.info("Supported actions: " + hex(self.supported_actions))
+
+            request = ofp.message.set_config()
+            temp = self.controller.message_send(request)
+
+            request = ofp.message.get_config_request()
+            reply, pkt = self.controller.transact(request)
+            self.assertTrue(reply is not None,
+                            "Did not complete get_config for handshake")
+
         except:
             self.controller.kill()
             del self.controller

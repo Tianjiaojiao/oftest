@@ -6,42 +6,16 @@
 # Do not modify
 
 version_names = {
-    1: "1.0",
-    2: "1.1",
-    3: "1.2",
-    4: "1.3",
-    5: "1.4",
-    6: "1.5",
+    4: "1.4",
 }
 
 def protocol(ver):
     """
     Import and return the protocol module for the given wire version.
     """
-    if ver == 1:
-        import of10
-        return of10
-
-    if ver == 2:
-        import of11
-        return of11
-
-    if ver == 3:
-        import of12
-        return of12
-
     if ver == 4:
-        import of13
-        return of13
-
-    if ver == 5:
-        import of14
-        return of14
-
-    if ver == 6:
-        import of15
-        return of15
-
+       import pof
+       return pof    
     raise ValueError
 
 class ProtocolError(Exception):

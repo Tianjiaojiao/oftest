@@ -10,7 +10,7 @@ and multipart transactions.
 """
 
 import loxi
-import loxi.of14
+import loxi.pof
 import logging
 import time
 import socket
@@ -69,7 +69,7 @@ class Connection(Thread):
                 break
 
             # Parse the header to get type
-            hdr_version, hdr_type, hdr_msglen, hdr_xid = loxi.of14.message.parse_header(buf[offset:])
+            hdr_version, hdr_type, hdr_msglen, hdr_xid = loxi.pof.message.parse_header(buf[offset:])
 
             # Use loxi to resolve ofp of matching version
             ofp = loxi.protocol(hdr_version)
@@ -218,7 +218,7 @@ class Connection(Thread):
         self.next_xid += 1
         return xid
 
-def connect(ip, port=6653, daemon=True, ofp=loxi.of14):
+def connect(ip, port=6633, daemon=True, ofp=loxi.pof):
     """
     Actively connect to a switch
     """
@@ -231,12 +231,12 @@ def connect(ip, port=6653, daemon=True, ofp=loxi.of14):
     cxn.start()
 
     cxn.send(ofp.message.hello())
-    if not cxn.recv(lambda msg: msg.type == ofp.OFPT_HELLO):
+    if not cxn.recv(lambda msg: msg.type == ofp.POFT_HELLO):
         raise Exception("Did not receive HELLO")
 
     return cxn
 
-def connect_unix(path, daemon=True, ofp=loxi.of14):
+def connect_unix(path, daemon=True, ofp=loxi.pof):
     """
     Connect over a unix domain socket
     """
@@ -248,7 +248,7 @@ def connect_unix(path, daemon=True, ofp=loxi.of14):
     cxn.start()
 
     cxn.send(ofp.message.hello())
-    if not cxn.recv(lambda msg: msg.type == ofp.OFPT_HELLO):
+    if not cxn.recv(lambda msg: msg.type == ofp.POFT_HELLO):
         raise Exception("Did not receive HELLO")
 
     return cxn

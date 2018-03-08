@@ -6,7 +6,7 @@ import struct
 import ofp
 
 class illegal_message_type(object):
-    version = ofp.OFP_VERSION
+    version = ofp.POF_VERSION
     type = 217
 
     def __init__(self, xid=None):

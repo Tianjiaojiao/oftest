@@ -34,11 +34,11 @@ def delete_all_flows(ctrl, send_barrier=True):
 
     logging.info("Deleting all flows")
     msg = ofp.message.flow_delete()
-    if ofp.OFP_VERSION in [1, 2]:
+    if ofp.POF_VERSION in [1, 2]:
         msg.match.wildcards = ofp.OFPFW_ALL
         msg.out_port = ofp.OFPP_NONE
         msg.buffer_id = 0xffffffff
-    elif ofp.OFP_VERSION >= 3:
+    elif ofp.POF_VERSION >= 3:
         msg.table_id = ofp.OFPTT_ALL
         msg.buffer_id = ofp.OFP_NO_BUFFER
         msg.out_port = ofp.OFPP_ANY
@@ -608,7 +608,7 @@ def port_config_get(controller, port_no):
     advertised values
     """
 
-    if ofp.OFP_VERSION <= 3:
+    if ofp.POF_VERSION <= 3:
         request = ofp.message.features_request()
         reply, _ = controller.transact(request)
         if reply is None:
@@ -798,7 +798,7 @@ def match_verify(parent, req_match, res_match):
 
 def packet_to_flow_match(parent, packet):
     match = oftest.parse.packet_to_flow_match(packet)
-    if ofp.OFP_VERSION in [1, 2]:
+    if ofp.POF_VERSION in [1, 2]:
         match.wildcards |= required_wildcards(parent)
     else:
         # TODO remove incompatible OXM entries
@@ -837,7 +837,7 @@ def flow_msg_create(parent, pkt, ing_port=None, action_list=None, wildcards=None
         request.flags |= ofp.OFPFF_SEND_FLOW_REM
         request.hard_timeout = 1
 
-    if ofp.OFP_VERSION == 1:
+    if ofp.POF_VERSION == 1:
         actions = request.actions
     else:
         actions = []
@@ -1406,7 +1406,7 @@ def get_stats(test, req):
     """
     Retrieve a list of stats entries. Handles OFPSF_REPLY_MORE.
     """
-    msgtype = ofp.OFPT_STATS_REPLY
+    msgtype = ofp.POFT_STATS_REPLY
     more_flag = ofp.OFPSF_REPLY_MORE
     stats = []
     reply, _ = test.controller.transact(req)
@@ -1427,25 +1427,25 @@ def get_flow_stats(test, match, table_id=None,
     """
 
     if table_id == None:
-        if ofp.OFP_VERSION <= 2:
+        if ofp.POF_VERSION <= 2:
             table_id = 0xff
         else:
             table_id = ofp.OFPTT_ALL
 
     if out_port == None:
-        if ofp.OFP_VERSION == 1:
+        if ofp.POF_VERSION == 1:
             out_port = ofp.OFPP_NONE
         else:
             out_port = ofp.OFPP_ANY
 
     if out_group == None:
-        if ofp.OFP_VERSION > 1:
+        if ofp.POF_VERSION > 1:
             out_group = ofp.OFPP_ANY
 
     req = ofp.message.flow_stats_request(match=match,
                                          table_id=table_id,
                                          out_port=out_port)
-    if ofp.OFP_VERSION > 1:
+    if ofp.POF_VERSION > 1:
         req.out_group = out_group
         req.cookie = cookie
         req.cookie_mask = cookie_mask
@@ -1609,7 +1609,7 @@ def packet_in_match(msg, data, in_port=None, reason=None):
     @param reason Expected packet_in reason, or None
     """
 
-    if ofp.OFP_VERSION <= 2:
+    if ofp.POF_VERSION <= 2:
         pkt_in_port = msg.in_port
     else:
         oxms = { type(oxm): oxm for oxm in msg.match.oxm_list }
@@ -1662,7 +1662,7 @@ def verify_packet_in(test, data, in_port, reason, controller=None):
     end_time = time.time() + oftest.ofutils.default_timeout
 
     while True:
-        msg, _ = controller.poll(ofp.OFPT_PACKET_IN, end_time - time.time())
+        msg, _ = controller.poll(ofp.POFT_PACKET_IN, end_time - time.time())
         if not msg:
             # Timeout
             break
@@ -1693,7 +1693,7 @@ def verify_no_packet_in(test, data, in_port, controller=None):
 
     # Check every packet_in queued in the controller
     while True:
-        msg, _ = controller.poll(ofp.OFPT_PACKET_IN, timeout=0)
+        msg, _ = controller.poll(ofp.POFT_PACKET_IN, timeout=0)
         if msg == None:
             # No more queued packet_in messages
             break
@@ -1773,7 +1773,7 @@ def verify_packets(test, pkt, ofports):
     verify_no_other_packets(test)
 
 def verify_no_errors(ctrl):
-    error, _ = ctrl.poll(ofp.OFPT_ERROR, 0)
+    error, _ = ctrl.poll(ofp.POFT_ERROR, 0)
     if error:
         if error.version >= 3 and isinstance(error, ofp.message.bsn_error):
             raise AssertionError("unexpected error type=%d msg=%s" %
@@ -1799,9 +1799,9 @@ def verify_capability(test, capability):
     req = ofp.message.features_request()
     res, raw = test.controller.transact(req)
     test.assertIsNotNone(res, "Did not receive a response from the DUT.")
-    test.assertEqual(res.type, ofp.OFPT_FEATURES_REPLY,
+    test.assertEqual(res.type, ofp.POFT_FEATURES_REPLY,
                      ("Unexpected packet type %d received in response to "
-                      "OFPT_FEATURES_REQUEST") % res.type)
+                      "POFT_FEATURES_REQUEST") % res.type)
     logging.info("Received features_reply.")
     
     if (res.capabilities & capability) > 0:
@@ -1826,16 +1826,16 @@ def verify_configuration_flag(test, flag):
                   "flag  %s does not exist." % flag)
     flag_str = ofp.const.ofp_config_flags_map[flag]
 
-    logging.info("Sending OFPT_GET_CONFIG_REQUEST.")    
+    logging.info("Sending POFT_GET_CONFIG_REQUEST.")    
     req = ofp.message.get_config_request()
     rv = test.controller.message_send(req)
     test.assertNotEqual(rv, -1, "Not able to send get_config_request.")
 
-    logging.info("Expecting OFPT_GET_CONFIG_REPLY ")
-    (res, pkt) = test.controller.poll(exp_msg=ofp.OFPT_GET_CONFIG_REPLY,
+    logging.info("Expecting POFT_GET_CONFIG_REPLY ")
+    (res, pkt) = test.controller.poll(exp_msg=ofp.POFT_GET_CONFIG_REPLY,
                                       timeout=2)
-    test.assertIsNotNone(res, "Did not receive OFPT_GET_CONFIG_REPLY")
-    logging.info("Received OFPT_GET_CONFIG_REPLY ")
+    test.assertIsNotNone(res, "Did not receive POFT_GET_CONFIG_REPLY")
+    logging.info("Received POFT_GET_CONFIG_REPLY ")
 
     if res.flags == flag:
         logging.info("%s flag is set.", flag_str)

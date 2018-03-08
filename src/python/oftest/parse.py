@@ -78,27 +78,27 @@ def packet_to_flow_match(packet):
     Create a flow match that matches packet with the given wildcards
 
     @param packet The packet to use as a flow template
-    @return An loxi.of10.match object
+    @return An loxi.pof.match object
 
     @todo check min length of packet
     """
     import ofp
-    if ofp.OFP_VERSION == 1:
-        return packet_to_flow_match_v1(packet)
-    elif ofp.OFP_VERSION == 3:
-        return packet_to_flow_match_v3(packet)
-    elif ofp.OFP_VERSION == 4:
-        return packet_to_flow_match_v4(packet)
-    elif ofp.OFP_VERSION == 5:
-        return packet_to_flow_match_v5(packet)
+    #if ofp.POF_VERSION == 1:
+    #    return packet_to_flow_match_v1(packet)
+    #elif ofp.POF_VERSION == 3:
+    #    return packet_to_flow_match_v3(packet)
+    if ofp.POF_VERSION == 4:
+        return packet_to_flow_match_pof(packet)
+    #elif ofp.POF_VERSION == 5:
+    #    return packet_to_flow_match_v5(packet)
     else:
         raise NotImplementedError()
-
+'''
 def packet_to_flow_match_v1(packet):
     """
     OpenFlow 1.0 implementation of packet_to_flow_match
     """
-    import loxi.of10 as ofp
+    import loxi.pof as ofp
 
     if type(packet) == type(""):
         ether = scapy.Ether(packet)
@@ -168,28 +168,29 @@ def packet_to_flow_match_v1(packet):
         match.wildcards &= ~ofp.OFPFW_NW_DST_MASK
 
     return match
-
+'''
+'''
 def packet_to_flow_match_v3(packet):
     """
     OpenFlow 1.2 implementation of packet_to_flow_match
     """
     import loxi.of12 as ofp
     return packet_to_flow_match_oxm(packet, ofp)
-
-def packet_to_flow_match_v4(packet):
+'''
+def packet_to_flow_match_pof(packet):
     """
     OpenFlow 1.3 implementation of packet_to_flow_match
     """
-    import loxi.of13 as ofp
+    import loxi.pof as ofp
     return packet_to_flow_match_oxm(packet, ofp)
-
+'''
 def packet_to_flow_match_v5(packet):
     """
     OpenFlow 1.3 implementation of packet_to_flow_match
     """
-    import loxi.of14 as ofp
+    import loxi.pof as ofp
     return packet_to_flow_match_oxm(packet, ofp)
-
+'''
 def packet_to_flow_match_oxm(packet, ofp):
     def parse_ether_layer(layer, match):
         assert(type(layer) == scapy.Ether)
