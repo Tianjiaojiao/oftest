@@ -164,7 +164,6 @@ class Controller(Thread):
                                     socket.SOCK_STREAM, 0, socket.AI_PASSIVE)
             # Use first returned addrinfo
             (family, socktype, proto, name, sockaddr) = ai[0]
-            print(family, socktype, proto, name, sockaddr)
             self.listen_socket = socket.socket(family, socktype)
             self.listen_socket.setsockopt(socket.SOL_SOCKET,
                                           socket.SO_REUSEADDR, 1)
@@ -269,20 +268,20 @@ class Controller(Thread):
                 # Log error messages
                 if isinstance(msg, ofp.message.error_msg):
                     #pylint: disable=E1103
-                    if msg.err_type in ofp.ofp_error_type_map:
-                        type_str = ofp.ofp_error_type_map[msg.err_type]
-                        if msg.err_type == ofp.OFPET_HELLO_FAILED:
-                            code_map = ofp.ofp_hello_failed_code_map
-                        elif msg.err_type == ofp.OFPET_BAD_REQUEST:
-                            code_map = ofp.ofp_bad_request_code_map
-                        elif msg.err_type == ofp.OFPET_BAD_ACTION:
-                            code_map = ofp.ofp_bad_action_code_map
-                        elif msg.err_type == ofp.OFPET_FLOW_MOD_FAILED:
-                            code_map = ofp.ofp_flow_mod_failed_code_map
-                        elif msg.err_type == ofp.OFPET_PORT_MOD_FAILED:
-                            code_map = ofp.ofp_port_mod_failed_code_map
-                        elif msg.err_type == ofp.OFPET_QUEUE_OP_FAILED:
-                            code_map = ofp.ofp_queue_op_failed_code_map
+                    if msg.err_type in ofp.pof_error_type_map:
+                        type_str = ofp.pof_error_type_map[msg.err_type]
+                        if msg.err_type == ofp.POFET_HELLO_FAILED:
+                            code_map = ofp.pof_hello_failed_code_map
+                        elif msg.err_type == ofp.POFET_BAD_REQUEST:
+                            code_map = ofp.pof_bad_request_code_map
+                        elif msg.err_type == ofp.POFET_BAD_ACTION:
+                            code_map = ofp.pof_bad_action_code_map
+                        elif msg.err_type == ofp.POFET_FLOW_MOD_FAILED:
+                            code_map = ofp.pof_flow_mod_failed_code_map
+                        elif msg.err_type == ofp.POFET_PORT_MOD_FAILED:
+                            code_map = ofp.pof_port_mod_failed_code_map
+                        elif msg.err_type == ofp.POFET_QUEUE_OP_FAILED:
+                            code_map = ofp.pof_queue_op_failed_code_map
                         else:
                             code_map = None
 
@@ -295,8 +294,8 @@ class Controller(Thread):
                         code_str = "unknown"
                     self.logger.warn("Received error message: xid=%d type=%s (%d) code=%s (%d)",
                                      hdr_xid, type_str, msg.err_type, code_str, msg.code if code_str != "unknown" else -1)
-                    if msg.version >= 3 and isinstance(msg, ofp.message.bsn_error):
-                        self.logger.warn("BSN error, msg '%s'", msg.err_msg)
+                    #if msg.version >= 3 and isinstance(msg, ofp.message.bsn_error):
+                    #    self.logger.warn("BSN error, msg '%s'", msg.err_msg)
 
                 # Now check for message handlers; preference is given to
                 # handlers for a specific packet

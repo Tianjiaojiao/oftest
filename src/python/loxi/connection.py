@@ -188,7 +188,7 @@ class Connection(Thread):
                 raise TransactionError("received %s in response to %s" % (type(reply).__name__, type(msg).__name__), reply)
             for entry in reply.entries:
                 yield entry
-            finished = reply.flags & loxi.protocol(reply.version).OFPSF_REPLY_MORE == 0
+            finished = reply.flags & loxi.protocol(reply.version).POFSF_REPLY_MORE == 0
 
     def transact_multipart(self, msg, timeout=DEFAULT_TIMEOUT):
         """

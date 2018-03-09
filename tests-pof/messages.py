@@ -44,15 +44,15 @@ class Hello(base_tests.SimpleDataPlane):
         self.assertEqual(len(response), 8, 'length of response is not 8')
         self.assertTrue(response.version == 0x04, 'pof-version field is not 4')
 
-
+@group('smoke')
 class ErrorMsg(base_tests.SimpleProtocol):
     """
     Verify POFT_ERROR msg is implemented
 
     When the header in the  request msg
     contains a version field which is not supported by the switch ,
-    it generates POFT_ERROR_msg with Type field OFPET_BAD_REQUEST
-    and code field OFPBRC_BAD_VERSION
+    it generates POFT_ERROR_msg with Type field POFET_BAD_REQUEST
+    and code field POFBRC_BAD_VERSION
     """
 
     def runTest(self):
@@ -172,7 +172,7 @@ class FeaturesReplyBody(base_tests.SimpleProtocol):
         
         self.assertTrue(len(supported_actions) != 0, "Features Reply did not contain actions supported by sw")
         # Verify switch supports the Required Actions i.e Forward
-        self.assertTrue('OFPAT_OUTPUT' in supported_actions, "Required Action--Forward is not supported ")
+        self.assertTrue('POFAT_OUTPUT' in supported_actions, "Required Action--Forward is not supported ")
         logging.info("Supported Actions: " + str(supported_actions))
         """
         supported_capabilities = []
@@ -410,7 +410,7 @@ class PacketInSizeAction(base_tests.SimpleDataPlane):
         pkt = simple_tcp_packet()
         match = parse.packet_to_flow_match(pkt)
         self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.OFPFW_ALL#???
+        match.wildcards = ofp.POFFW_ALL#???
         match.in_port = of_ports[0]
 
         max_len = [0, 32, 64, 100]
@@ -468,7 +468,7 @@ class PacketInBodyMiss(base_tests.SimpleDataPlane):
         pkt = simple_tcp_packet()
         match = parse.packet_to_flow_match(pkt)
         self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.OFPFW_ALL#???
+        match.wildcards = ofp.POFFW_ALL#???
         match.in_port = of_ports[0]
         self.dataplane.send(of_ports[0], str(pkt))
 
@@ -497,7 +497,7 @@ class PacketInBodyAction(base_tests.SimpleDataPlane):
         pkt = simple_tcp_packet()
         match = parse.packet_to_flow_match(pkt)
         self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.OFPFW_ALL#???
+        match.wildcards = ofp.POFFW_ALL#???
         match.in_port = of_ports[0]
 
         # Insert a flow entry with action output to controller
@@ -632,8 +632,8 @@ class PacketOut(base_tests.SimpleDataPlane):
 class ModifyStateAdd(base_tests.SimpleProtocol):
     
     """Check basic Flow Add request is implemented
-    a) Send  POFT_FLOW_MOD , command = OFPFC_ADD 
-    c) Send ofp_table_stats request , verify active_count=1 in reply"""
+    a) Send  POFT_FLOW_MOD , command = POFFC__ADD 
+    c) Send pof_table_stats request , verify active_count=1 in reply"""
 
     def runTest(self):
 
@@ -658,10 +658,10 @@ class ModifyStateAdd(base_tests.SimpleProtocol):
 class ModifyStateDelete(base_tests.SimpleProtocol):
     
     """Check Basic Flow Delete request is implemented
-    a) Send POFT_FLOW_MOD, command = OFPFC_ADD
-    b) Send ofp_table_stats request , verify active_count=1 in reply
-    c) Send POFT_FLOW_MOD, command = OFPFC_DELETE
-    c) Send ofp_table_stats request , verify active_count=0 in reply"""
+    a) Send POFT_FLOW_MOD, command = POFFC__ADD
+    b) Send pof_table_stats request , verify active_count=1 in reply
+    c) Send POFT_FLOW_MOD, command = POFFC__DELETE
+    c) Send pof_table_stats request , verify active_count=0 in reply"""
 
     def runTest(self):
 
@@ -692,8 +692,8 @@ class ModifyStateDelete(base_tests.SimpleProtocol):
 class ModifyStateModify(base_tests.SimpleDataPlane):
     
     """Verify basic Flow Modify request is implemented
-    a) Send POFT_FLOW_MOD, command = OFPFC_ADD, Action A 
-    b) Send POFT_FLOW_MOD, command = OFPFC_MODIFY , with output action A'
+    a) Send POFT_FLOW_MOD, command = POFFC__ADD, Action A 
+    b) Send POFT_FLOW_MOD, command = POFFC__MODIFY , with output action A'
     c) Send a packet matching the flow, verify packet implements action A' """
 
     def runTest(self):
@@ -810,7 +810,7 @@ class GroupModModify(base_tests.SimpleDataPlane):
 
 class PortModFlood(base_tests.SimpleDataPlane):
     """ Modify the behavior of physical port using Port Modification Messages
-    Change OFPPC_NO_FLOOD flag  and verify change takes place with features request """
+    Change POFPC_NO_FLOOD flag  and verify change takes place with features request """
 
     def runTest(self):
         logging.info("Running PortModFlood Test")
@@ -824,12 +824,12 @@ class PortModFlood(base_tests.SimpleDataPlane):
         self.assertTrue(port_config is not None, "Did not get port config")
 
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config & ofp.OFPPC_NO_FLOOD))
+                      str(port_config & ofp.POFPC_NO_FLOOD))
 
         # Modify Port Configuration
         logging.info("Modify Port Configuration using Port Modification Message:POFT_PORT_MOD")
         rv = port_config_set(self.controller, of_ports[0],
-                             port_config ^ ofp.OFPPC_NO_FLOOD, ofp.OFPPC_NO_FLOOD)
+                             port_config ^ ofp.POFPC_NO_FLOOD, ofp.POFPC_NO_FLOOD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -838,14 +838,14 @@ class PortModFlood(base_tests.SimpleDataPlane):
         (hw_addr, port_config2, advert) = port_config_get(self.controller, of_ports[0])
 
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config2 & ofp.OFPPC_NO_FLOOD))
+                      str(port_config2 & ofp.POFPC_NO_FLOOD))
         self.assertTrue(port_config2 is not None, "Did not get port config2")
-        self.assertTrue(port_config2 & ofp.OFPPC_NO_FLOOD !=
-                        port_config & ofp.OFPPC_NO_FLOOD,
+        self.assertTrue(port_config2 & ofp.POFPC_NO_FLOOD !=
+                        port_config & ofp.POFPC_NO_FLOOD,
                         "Bit change did not take")
         # Set it back
         rv = port_config_set(self.controller, of_ports[0], port_config,
-                             ofp.OFPPC_NO_FLOOD)
+                             ofp.POFPC_NO_FLOOD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -853,7 +853,7 @@ class PortModFlood(base_tests.SimpleDataPlane):
 class PortModFwd(base_tests.SimpleDataPlane):
     """
     Modify the behavior of physical port using Port Modification Messages
-    Change OFPPC_NO_FWD flag and verify change took place with Features Request"""
+    Change POFPC_NO_FWD flag and verify change took place with Features Request"""
 
     def runTest(self):
         logging.info("Running PortModFwd Test")
@@ -866,12 +866,12 @@ class PortModFwd(base_tests.SimpleDataPlane):
             port_config_get(self.controller, of_ports[0])
         self.assertTrue(port_config is not None, "Did not get port config")
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config & ofp.OFPPC_NO_FWD))
+                      str(port_config & ofp.POFPC_NO_FWD))
 
         # Modify Port Configuration
         logging.info("Modify Port Configuration using Port Modification Message:POFT_PORT_MOD")
         rv = port_config_set(self.controller, of_ports[0],
-                             port_config ^ ofp.OFPPC_NO_FWD, ofp.OFPPC_NO_FWD)
+                             port_config ^ ofp.POFPC_NO_FWD, ofp.POFPC_NO_FWD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -880,15 +880,15 @@ class PortModFwd(base_tests.SimpleDataPlane):
         (hw_addr, port_config2, advert) = port_config_get(self.controller, of_ports[0])
 
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config2 & ofp.OFPPC_NO_FWD))
+                      str(port_config2 & ofp.POFPC_NO_FWD))
 
         self.assertTrue(port_config2 is not None, "Did not get port config2")
-        self.assertTrue(port_config2 & ofp.OFPPC_NO_FWD !=
-                        port_config & ofp.OFPPC_NO_FWD,
+        self.assertTrue(port_config2 & ofp.POFPC_NO_FWD !=
+                        port_config & ofp.POFPC_NO_FWD,
                         "Bit change did not take")
         # Set it back
         rv = port_config_set(self.controller, of_ports[0], port_config,
-                             ofp.OFPPC_NO_FWD)
+                             ofp.POFPC_NO_FWD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -896,7 +896,7 @@ class PortModFwd(base_tests.SimpleDataPlane):
 class PortModPacketIn(base_tests.SimpleDataPlane):
     """
     Modify the behavior of physical port using Port Modification Messages
-    Change OFPPC_NO_PACKET_IN flag and verify change took place with Features Request"""
+    Change POFPC_NO_PACKET_IN flag and verify change took place with Features Request"""
 
     def runTest(self):
         logging.info("Running PortModPacketIn Test")
@@ -909,12 +909,12 @@ class PortModPacketIn(base_tests.SimpleDataPlane):
             port_config_get(self.controller, of_ports[0])
         self.assertTrue(port_config is not None, "Did not get port config")
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config & ofp.OFPPC_NO_PACKET_IN))
+                      str(port_config & ofp.POFPC_NO_PACKET_IN))
 
         # Modify Port Configuration
         logging.info("Modify Port Configuration using Port Modification Message:POFT_PORT_MOD")
         rv = port_config_set(self.controller, of_ports[0],
-                             port_config ^ ofp.OFPPC_NO_PACKET_IN, ofp.OFPPC_NO_PACKET_IN)
+                             port_config ^ ofp.POFPC_NO_PACKET_IN, ofp.POFPC_NO_PACKET_IN)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -923,15 +923,15 @@ class PortModPacketIn(base_tests.SimpleDataPlane):
         (hw_addr, port_config2, advert) = port_config_get(self.controller, of_ports[0])
 
         logging.debug("No flood bit port " + str(of_ports[0]) + " is now " +
-                      str(port_config2 & ofp.OFPPC_NO_PACKET_IN))
+                      str(port_config2 & ofp.POFPC_NO_PACKET_IN))
 
         self.assertTrue(port_config2 is not None, "Did not get port config2")
-        self.assertTrue(port_config2 & ofp.OFPPC_NO_PACKET_IN !=
-                        port_config & ofp.OFPPC_NO_PACKET_IN,
+        self.assertTrue(port_config2 & ofp.POFPC_NO_PACKET_IN !=
+                        port_config & ofp.POFPC_NO_PACKET_IN,
                         "Bit change did not take")
         # Set it back
         rv = port_config_set(self.controller, of_ports[0], port_config,
-                             ofp.OFPPC_NO_PACKET_IN)
+                             ofp.POFPC_NO_PACKET_IN)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 

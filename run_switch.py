@@ -62,7 +62,7 @@ else:
 #ofd_op = Popen([ofd, "-i", veths, "punix:/tmp/ofd"])
 #print "Started ofdatapath on IFs " + veths + " with pid " + str(ofd_op.pid)
 
-call([pof, "-i 127.0.0.1", "-p"+ str(options.port)])#if add other parameters, pofswitch will exit after operation
+call([pof, "-P", "-i 127.0.0.1", "-p"+ str(options.port)])#if add other parameters, pofswitch will exit after operation
 
 #ofd_op.kill()
 

@@ -112,60 +112,60 @@ def packet_to_flow_match_v1(packet):
         raise ValueError("could not classify packet")
 
     match = ofp.match()
-    match.wildcards = ofp.OFPFW_ALL
+    match.wildcards = ofp.POFFW_ALL
     #@todo Check if packet is other than L2 format
     match.eth_dst = parse_mac(ether.dst)
-    match.wildcards &= ~ofp.OFPFW_DL_DST
+    match.wildcards &= ~ofp.POFFW_DL_DST
     match.eth_src = parse_mac(ether.src)
-    match.wildcards &= ~ofp.OFPFW_DL_SRC
+    match.wildcards &= ~ofp.POFFW_DL_SRC
     match.eth_type = ether.type
-    match.wildcards &= ~ofp.OFPFW_DL_TYPE
+    match.wildcards &= ~ofp.POFFW_DL_TYPE
 
     if dot1q:
         match.vlan_vid = dot1q.vlan
         match.vlan_pcp = dot1q.prio
         match.eth_type = dot1q.type
     else:
-        match.vlan_vid = ofp.OFP_VLAN_NONE
+        match.vlan_vid = ofp.POF_VLAN_NONE
         match.vlan_pcp = 0
-    match.wildcards &= ~ofp.OFPFW_DL_VLAN
-    match.wildcards &= ~ofp.OFPFW_DL_VLAN_PCP
+    match.wildcards &= ~ofp.POFFW_DL_VLAN
+    match.wildcards &= ~ofp.POFFW_DL_VLAN_PCP
 
     if ip:
         match.ipv4_src = parse_ip(ip.src)
-        match.wildcards &= ~ofp.OFPFW_NW_SRC_MASK
+        match.wildcards &= ~ofp.POFFW_NW_SRC_MASK
         match.ipv4_dst = parse_ip(ip.dst)
-        match.wildcards &= ~ofp.OFPFW_NW_DST_MASK
+        match.wildcards &= ~ofp.POFFW_NW_DST_MASK
         match.ip_dscp = ip.tos
-        match.wildcards &= ~ofp.OFPFW_NW_TOS
+        match.wildcards &= ~ofp.POFFW_NW_TOS
 
     if tcp:
         match.ip_proto = 6
-        match.wildcards &= ~ofp.OFPFW_NW_PROTO
+        match.wildcards &= ~ofp.POFFW_NW_PROTO
     elif not tcp and udp:
         tcp = udp
         match.ip_proto = 17
-        match.wildcards &= ~ofp.OFPFW_NW_PROTO
+        match.wildcards &= ~ofp.POFFW_NW_PROTO
 
     if tcp:
         match.tcp_src = tcp.sport
-        match.wildcards &= ~ofp.OFPFW_TP_SRC
+        match.wildcards &= ~ofp.POFFW_TP_SRC
         match.tcp_dst = tcp.dport
-        match.wildcards &= ~ofp.OFPFW_TP_DST
+        match.wildcards &= ~ofp.POFFW_TP_DST
 
     if icmp:
         match.ip_proto = 1
         match.tcp_src = icmp.type
         match.tcp_dst = icmp.code
-        match.wildcards &= ~ofp.OFPFW_NW_PROTO
+        match.wildcards &= ~ofp.POFFW_NW_PROTO
 
     if arp:
         match.ip_proto = arp.op
-        match.wildcards &= ~ofp.OFPFW_NW_PROTO
+        match.wildcards &= ~ofp.POFFW_NW_PROTO
         match.ipv4_src = parse_ip(arp.psrc)
-        match.wildcards &= ~ofp.OFPFW_NW_SRC_MASK
+        match.wildcards &= ~ofp.POFFW_NW_SRC_MASK
         match.ipv4_dst = parse_ip(arp.pdst)
-        match.wildcards &= ~ofp.OFPFW_NW_DST_MASK
+        match.wildcards &= ~ofp.POFFW_NW_DST_MASK
 
     return match
 '''
@@ -200,11 +200,11 @@ def packet_to_flow_match_oxm(packet, ofp):
         if type(layer.payload) == scapy.Dot1Q:
             layer = layer.payload
             match.oxm_list.append(ofp.oxm.eth_type(layer.type))
-            match.oxm_list.append(ofp.oxm.vlan_vid(ofp.OFPVID_PRESENT|layer.vlan))
+            match.oxm_list.append(ofp.oxm.vlan_vid(ofp.POFVID_PRESENT|layer.vlan))
             match.oxm_list.append(ofp.oxm.vlan_pcp(layer.prio))
         else:
             match.oxm_list.append(ofp.oxm.eth_type(layer.type))
-            match.oxm_list.append(ofp.oxm.vlan_vid(ofp.OFP_VLAN_NONE))
+            match.oxm_list.append(ofp.oxm.vlan_vid(ofp.POF_VLAN_NONE))
 
         if type(layer.payload) == scapy.IP:
             parse_ipv4_layer(layer.payload, match)

@@ -2454,7 +2454,7 @@ class packet_in(message):
         packed.append(struct.pack("!L", self.device_id))
         packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!H", self.port_id))
-        packed.append(struct.pack("!2048s", self.data))
+        packed.append(self.data)
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
@@ -2478,7 +2478,7 @@ class packet_in(message):
         obj.device_id = reader.read("!L")[0]
         obj.slotID = reader.read("!H")[0]
         obj.port_id = reader.read("!H")[0]
-        obj.data = reader.read("!2048s")[0].rstrip("\x00")
+        obj.data = str(reader.read_all())
         return obj
 
     def __eq__(self, other):
@@ -3036,7 +3036,7 @@ class flow_mod(message):
             self.table_id = table_id
         else:
             self.table_id = 0
-        if self.table_type != None:
+        if table_type != None:
             self.table_type = table_type
         else:
             self.table_type = None
@@ -3247,10 +3247,10 @@ class flow_add(flow_mod):
             self.table_id = table_id
         else:
             self.table_id = 0
-        if self.table_type != None:
+        if table_type != None:
             self.table_type = table_type
         else:
-            self.table_type = None
+            self.table_type = 0
         if idle_timeout != None:
             self.idle_timeout = idle_timeout
         else:
@@ -3450,7 +3450,7 @@ class flow_modify(flow_mod):
             self.table_id = table_id
         else:
             self.table_id = 0
-        if self.table_type != None:
+        if table_type != None:
             self.table_type = table_type
         else:
             self.table_type = None
@@ -3842,7 +3842,7 @@ class flow_delete(flow_mod):
             self.table_id = table_id
         else:
             self.table_id = 0
-        if self.table_type != None:
+        if table_type != None:
             self.table_type = table_type
         else:
             self.table_type = None
@@ -4238,7 +4238,7 @@ class group_mod(message):
             self.soltID = slotID
         else:
             self.soltID = 0
-        if self.action != None:
+        if action != None:
             self.action = action
         else:
             self.action = []
@@ -4368,7 +4368,7 @@ class group_add(group_mod):
             self.soltID = slotID
         else:
             self.soltID = 0
-        if self.action != None:
+        if action != None:
             self.action = action
         else:
             self.action = []
@@ -4490,7 +4490,7 @@ class group_modify(group_mod):
             self.soltID = slotID
         else:
             self.soltID = 0
-        if self.action != None:
+        if action != None:
             self.action = action
         else:
             self.action = []
@@ -4612,7 +4612,7 @@ class group_delete(group_mod):
             self.soltID = slotID
         else:
             self.soltID = 0
-        if self.action != None:
+        if action != None:
             self.action = action
         else:
             self.action = []
@@ -6192,7 +6192,7 @@ class counter_mod(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6289,7 +6289,7 @@ class counter_add(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6378,7 +6378,7 @@ class counter_delete(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6467,7 +6467,7 @@ class counter_clear(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6562,7 +6562,7 @@ class counter_request(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6660,7 +6660,7 @@ class counter_reply(message):
             self.counter_id = counter_id
         else:
             self.counter_id = 0
-        if self.value != None:
+        if value != None:
             self.value = value
         else:
             self.value = 0
@@ -6889,7 +6889,7 @@ class instruction_block_mod(message):
             self.slotID = slotID
         else:
             self.slotID = 0
-        if self.instruction_block_id != None:
+        if instruction_block_id != None:
             self.instruction_block_id = instruction_block_id
         else:
             self.instruction_block_id = 0
@@ -6986,11 +6986,11 @@ class slot_config(message):
             self.slotID = slotID
         else:
             self.slotID = 0
-        if self.flag != None:
+        if flag != None:
             self.flag = flag
         else:
             self.flag = 0
-        if self.rsv != None:
+        if rsv != None:
             self.rsv = rsv
         else:
             self.rsv = []
@@ -7072,15 +7072,15 @@ class slot_status(message):
             self.slotID = slotID
         else:
             self.slotID = 0
-        if self.slot_status != None:
+        if slot_status != None:
             self.slot_status = slot_status
         else:
             self.slot_status = 0
-        if self.resend_flag != None:
+        if resend_flag != None:
             self.resend_flag = resend_flag
         else:
             self.resend_flag = 0
-        if self.rsv != None:
+        if rsv != None:
             self.rsv = rsv
         else:
             self.rsv = []

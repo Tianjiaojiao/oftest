@@ -40,7 +40,7 @@ def pretty_flags(v, flag_names):
 
 
 def pretty_port(v):
-    named_ports = [(k,v2) for (k,v2) in const.__dict__.iteritems() if k.startswith('OFPP_')]
+    named_ports = [(k,v2) for (k,v2) in const.__dict__.iteritems() if k.startswith('POFP_')]
     for (k, v2) in named_ports:
         if v == v2:
             return k

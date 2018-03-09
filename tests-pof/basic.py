@@ -60,8 +60,8 @@ class PacketIn(base_tests.SimpleDataPlane):
         # Send packet to dataplane, once to each port
         # Poll controller with expect message type packet in
 
-        delete_all_flows(self.controller)
-        do_barrier(self.controller)
+        #delete_all_flows(self.controller)
+        #do_barrier(self.controller)
 
         vid = test_param_get('vid', default=TEST_VID_DEFAULT)
 
@@ -75,8 +75,8 @@ class PacketIn(base_tests.SimpleDataPlane):
 
                logging.info("PKT IN test with %s, port %s" % (pt, of_port))
                self.dataplane.send(of_port, str(pkt))
-               verify_packet_in(self, str(pkt), of_port, ofp.OFPR_NO_MATCH)
-
+               verify_packet_in(self, str(pkt), of_port, ofp.POFR_NO_MATCH)
+@group('smoke')
 class PacketInBroadcastCheck(base_tests.SimpleDataPlane):
     """
     Check if bcast pkts leak when no flows are present
@@ -131,7 +131,7 @@ class PacketOut(base_tests.SimpleDataPlane):
                (simple_eth_packet(pktlen=40), "tiny Ethernet packet")]:
 
                logging.info("PKT OUT test with %s, port %s" % (opt, dp_port))
-               msg = ofp.message.packet_out(in_port=ofp.OFPP_NONE,
+               msg = ofp.message.packet_out(in_port=ofp.POFP_NONE,
                                         data=str(outpkt),
                                         actions=[ofp.action.output(port=dp_port)],
                                         buffer_id=0xffffffff)
@@ -168,7 +168,7 @@ class PacketOutMC(base_tests.SimpleDataPlane):
                logging.info("PKT OUT test with " + opt +
                                  ", ports " + str(dp_ports))
                actions = [ofp.action.output(port=port) for port in dp_ports]
-               msg = ofp.message.packet_out(in_port=ofp.OFPP_NONE,
+               msg = ofp.message.packet_out(in_port=ofp.POFP_NONE,
                                         data=str(outpkt),
                                         actions=actions,
                                         buffer_id=0xffffffff)
@@ -177,64 +177,8 @@ class PacketOutMC(base_tests.SimpleDataPlane):
                self.controller.message_send(msg)
 
                verify_packets(self, outpkt, dp_ports)
-
-class FlowStatsGet(base_tests.SimpleProtocol):
-    """
-    Get stats 
-
-    Simply verify stats get transaction
-    """
-
-    def runTest(self):
-        logging.info("Running StatsGet")
-        logging.info("Inserting trial flow")
-        request = flow_mod_gen(config["port_map"], True)
-        self.controller.message_send(request)
-        
-        logging.info("Sending flow request")
-        request = ofp.message.flow_stats_request(out_port=ofp.OFPP_NONE,
-                                             table_id=0xff)
-        request.match.wildcards = 0 # ofp.OFPFW_ALL
-        response, pkt = self.controller.transact(request)
-        self.assertTrue(response is not None,
-                        "Did not get response for flow stats")
-        logging.debug(response.show())
-
-class TableStatsGet(base_tests.SimpleProtocol):
-    """
-    Get table stats 
-
-    Simply verify table stats get transaction
-    """
-    def runTest(self):
-        logging.info("Running TableStatsGet")
-        logging.info("Inserting trial flow")
-        request = flow_mod_gen(config["port_map"], True)
-        self.controller.message_send(request)
-        
-        logging.info("Sending table stats request")
-        request = ofp.message.table_stats_request()
-        response, pkt = self.controller.transact(request)
-        self.assertTrue(response is not None,
-                        "Did not get reply for table stats")
-        logging.debug(response.show())
-
-class DescStatsGet(base_tests.SimpleProtocol):
-    """
-    Get stats 
-
-    Simply verify stats get transaction
-    """
-    def runTest(self):
-        logging.info("Running DescStatsGet")
-        
-        logging.info("Sending stats request")
-        request = ofp.message.desc_stats_request()
-        response, pkt = self.controller.transact(request)
-        self.assertTrue(response is not None,
-                        "Did not get reply for desc stats")
-        logging.debug(response.show())
 '''
+@group('smoke')
 class FlowMod(base_tests.SimpleProtocol):
     """
     Insert a flow
@@ -246,7 +190,7 @@ class FlowMod(base_tests.SimpleProtocol):
         logging.info("Running " + str(self))
         request = flow_mod_gen(config["port_map"], True)
         self.controller.message_send(request)
-
+'''
 @group('smoke')
 class PortConfigMod(base_tests.SimpleProtocol):
     """
@@ -255,6 +199,7 @@ class PortConfigMod(base_tests.SimpleProtocol):
     Get the switch configuration, modify the port configuration
     and write it back; get the config again and verify changed.
     Then set it back to the way it was.
+    can only send port mod
     """
 
     def runTest(self):
@@ -267,10 +212,10 @@ class PortConfigMod(base_tests.SimpleProtocol):
         self.assertTrue(port_config is not None, "Did not get port config")
 
         logging.debug("No flood bit port " + str(of_port) + " is now " + 
-                           str(port_config & ofp.OFPPC_NO_FLOOD))
+                           str(port_config & ofp.POFPC_NO_FLOOD))
 
         rv = port_config_set(self.controller, of_port,
-                             port_config ^ ofp.OFPPC_NO_FLOOD, ofp.OFPPC_NO_FLOOD)
+                             port_config ^ ofp.POFPC_NO_FLOOD, ofp.POFPC_NO_FLOOD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
@@ -278,17 +223,18 @@ class PortConfigMod(base_tests.SimpleProtocol):
         (hw_addr, port_config2, advert) = \
             port_config_get(self.controller, of_port)
         logging.debug("No flood bit port " + str(of_port) + " is now " + 
-                           str(port_config2 & ofp.OFPPC_NO_FLOOD))
+                           str(port_config2 & ofp.POFPC_NO_FLOOD))
         self.assertTrue(port_config2 is not None, "Did not get port config2")
-        self.assertTrue(port_config2 & ofp.OFPPC_NO_FLOOD !=
-                        port_config & ofp.OFPPC_NO_FLOOD,
+        self.assertTrue(port_config2 & ofp.POFPC_NO_FLOOD !=
+                        port_config & ofp.POPPC_NO_FLOOD,
                         "Bit change did not take")
         # Set it back
         rv = port_config_set(self.controller, of_port, port_config,
-                             ofp.OFPPC_NO_FLOOD)
+                             ofp.POFPC_NO_FLOOD)
         self.assertTrue(rv != -1, "Error sending port mod")
         do_barrier(self.controller)
 
+@group('smoke')
 class PortConfigModErr(base_tests.SimpleProtocol):
     """
     Modify a bit in port config on an invalid port and verify
@@ -299,16 +245,16 @@ class PortConfigModErr(base_tests.SimpleProtocol):
         logging.info("Running " + str(self))
 
         # pick a random bad port number
-        bad_port = random.randint(1, ofp.OFPP_MAX)
+        bad_port = random.randint(1, ofp.POFP_MAX)
         count = 0
         while (count < 50) and (bad_port in config["port_map"].keys()):
-            bad_port = random.randint(1, ofp.OFPP_MAX)
+            bad_port = random.randint(1, ofp.POFP_MAX)
             count = count + 1
         self.assertTrue(count < 50, "Error selecting bad port")
         logging.info("Select " + str(bad_port) + " as invalid port")
 
         rv = port_config_set(self.controller, bad_port,
-                             ofp.OFPPC_NO_FLOOD, ofp.OFPPC_NO_FLOOD)
+                             ofp.POFPC_NO_FLOOD, ofp.POFPC_NO_FLOOD)
         self.assertTrue(rv != -1, "Error sending port mod")
 
         # poll for error message
@@ -316,8 +262,8 @@ class PortConfigModErr(base_tests.SimpleProtocol):
             (response, raw) = self.controller.poll(ofp.POFT_ERROR)
             if not response:  # Timeout
                 break
-            if response.code == ofp.OFPPMFC_BAD_PORT:
-                logging.info("Received error message with OFPPMFC_BAD_PORT code")
+            if response.code == ofp.POFPMFC_BAD_PORT:
+                logging.info("Received error message with POFPMFC_BAD_PORT code")
                 break
             if not config["relax"]:  # Only one attempt to match
                 break
@@ -326,7 +272,7 @@ class PortConfigModErr(base_tests.SimpleProtocol):
                 break
 
         self.assertTrue(response is not None, 'Did not receive error message')
-
+'''
 @group('smoke')
 class BadMessage(base_tests.SimpleProtocol):
     """
@@ -374,10 +320,10 @@ class TableModConfig(base_tests.SimpleProtocol):
         orig_table_config = get_table_config()
 
         # Change the configuration
-        if orig_table_config == ofp.OFPTC_TABLE_MISS_CONTROLLER:
-            new_table_config = ofp.OFPTC_TABLE_MISS_DROP
+        if orig_table_config == ofp.POFTC_TABLE_MISS_CONTROLLER:
+            new_table_config = ofp.POFTC_TABLE_MISS_DROP
         else:
-            new_table_config = ofp.OFPTC_TABLE_MISS_CONTROLLER
+            new_table_config = ofp.POFTC_TABLE_MISS_CONTROLLER
         request = ofp.message.table_mod(table_id=table_id, config=new_table_config)
         self.controller.message_send(request)
         self.controller.transact(ofp.message.barrier_request())

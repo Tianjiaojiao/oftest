@@ -281,7 +281,7 @@ class bucket_counter(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_GROUP_DESC--------------------
+#-----used to reply multipart request, type is POFMP_GROUP_DESC--------------------
 class group_desc_stats_entry(loxi.OFObject):
 
     def __init__(self, group_type=None, group_id=None, buckets=None):
@@ -345,7 +345,7 @@ class group_desc_stats_entry(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_GROUP-------------------------
+#-----used to reply multipart request, type is POFMP_GROUP-------------------------
 class group_stats_entry(loxi.OFObject):
 
     def __init__(self, group_id=None, ref_count=None, packet_count=None, byte_count=None, duration_sec=None, duration_nsec=None, bucket_stats=None):
@@ -451,7 +451,7 @@ class group_stats_entry(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_FLOW--------------------------
+#-----used to reply multipart request, type is POFMP_FLOW--------------------------
 class flow_stats_entry(loxi.OFObject):
 
     def __init__(self, table_id=None, duration_sec=None, duration_nsec=None, priority=None, idle_timeout=None, hard_timeout=None, flags=None, importance=None, cookie=None, packet_count=None, byte_count=None, match=None, instructions=None):
@@ -885,7 +885,7 @@ class meter_band_stats(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_METER_CONFIG------------------
+#-----used to reply multipart request, type is POFMP_METER_CONFIG------------------
 class meter_config(loxi.OFObject):
 
     def __init__(self, flags=None, meter_id=None, entries=None):
@@ -947,7 +947,7 @@ class meter_config(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_METER_FEATURES----------------
+#-----used to reply multipart request, type is POFMP_METER_FEATURES----------------
 class meter_features(loxi.OFObject):
 
     def __init__(self, max_meter=None, band_types=None, capabilities=None, max_bands=None, max_color=None):
@@ -1025,7 +1025,7 @@ class meter_features(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to reply multipart request, type is OFPMP_METER-------------------------
+#-----used to reply multipart request, type is POFMP_METER-------------------------
 class meter_stats(loxi.OFObject):
 
     def __init__(self, meter_id=None, flow_count=None, packet_in_count=None, byte_in_count=None, duration_sec=None, duration_nsec=None, band_stats=None):
@@ -1129,7 +1129,7 @@ class meter_stats(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----maybe used to reply multipart request, type is OFPMP_QUEUE_DESC--------------
+#-----maybe used to reply multipart request, type is POFMP_QUEUE_DESC--------------
 class packet_queue(loxi.OFObject):
 
     def __init__(self, queue_id=None, port=None, properties=None):
@@ -1360,7 +1360,7 @@ class port_desc(loxi.OFObject):
         q.text('}')
 
 """
-#-----used to reply multipart request, type is OFPMP_PORT_STATS-------------------
+#-----used to reply multipart request, type is POFMP_PORT_STATS-------------------
 class port_stats_entry(loxi.OFObject):
 
     def __init__(self, port_no=None, duration_sec=None, duration_nsec=None, rx_packets=None, tx_packets=None, rx_bytes=None, tx_bytes=None, rx_dropped=None, tx_dropped=None, rx_errors=None, tx_errors=None, properties=None):
@@ -1515,7 +1515,7 @@ class port_stats_entry(loxi.OFObject):
         q.text('}')
 
 
-#-----used to reply multipart request, type is OFPMP_QUEUE_DESC-------------------
+#-----used to reply multipart request, type is POFMP_QUEUE_DESC-------------------
 class queue_desc(loxi.OFObject):
 
     def __init__(self, port_no=None, queue_id=None, properties=None):
@@ -1798,7 +1798,7 @@ class queue_prop_experimenter(queue_prop):
 queue_prop.subtypes[65535] = queue_prop_experimenter
 
 
-#-----used to reply multipart request, type is OFPMP_QUEUE_STATS------------------
+#-----used to reply multipart request, type is POFMP_QUEUE_STATS------------------
 class queue_stats_entry(loxi.OFObject):
 
     def __init__(self, port_no=None, queue_id=None, tx_bytes=None, tx_packets=None, tx_errors=None, duration_sec=None, duration_nsec=None, properties=None):
@@ -1913,7 +1913,7 @@ class queue_stats_entry(loxi.OFObject):
         q.text('}')
 
 
-#-----used to reply multipart request, type is OFPMP_TABLE_DESC-------------------
+#-----used to reply multipart request, type is POFMP_TABLE_DESC-------------------
 class table_desc(loxi.OFObject):
 
     def __init__(self, table_id=None, config=None):
@@ -1967,7 +1967,7 @@ class table_desc(loxi.OFObject):
             q.breakable()
         q.text('}')
 
-#-----used to request/reply multipart message, type is OFPMP_TABLE_FEATURES-------
+#-----used to request/reply multipart message, type is POFMP_TABLE_FEATURES-------
 class table_features(loxi.OFObject):
 
     def __init__(self, table_id=None, name=None, metadata_match=None, metadata_write=None, config=None, max_entries=None, properties=None):
@@ -3171,7 +3171,7 @@ class table_mod_prop_experimenter(loxi.OFObject):
         q.text('}')
 
 """
-#-----used to reply multipart request, type is OFPMP_TABLE----------------------
+#-----used to reply multipart request, type is POFMP_TABLE----------------------
 class table_stats_entry(loxi.OFObject):
 
     def __init__(self, table_id=None, active_count=None, lookup_count=None, matched_count=None):

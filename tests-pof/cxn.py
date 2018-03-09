@@ -17,7 +17,6 @@ import oftest.dataplane as dataplane
 
 from oftest.testutils import *
 
-@disabled
 class BaseHandshake(unittest.TestCase):
     """
     Base handshake case to set up controller, but do not send hello.
@@ -96,7 +95,6 @@ class HandshakeNoFeaturesRequest(BaseHandshake):
         self.assertTrue(self.controllers[0].wait_disconnected(timeout=10),
                         "Not notified of controller disconnect")
 
-@disabled
 class CompleteHandshake(BaseHandshake):
     """
     Set up multiple controllers and complete handshake, but otherwise do nothing.
@@ -291,7 +289,6 @@ class CompleteHandshake(BaseHandshake):
             time.sleep(tick)
         self.periodic_task_done()
 
-@disabled
 class HandshakeAndKeepalive(CompleteHandshake):
     """
     Complete handshake and respond to echo request, but otherwise do nothing.
@@ -301,7 +298,6 @@ class HandshakeAndKeepalive(CompleteHandshake):
     def __init__(self):
        CompleteHandshake.__init__(self, keep_alive=True)
 
-@disabled
 class MonitorPacketIn(CompleteHandshake):
     """
     Complete handshake and respond to echo request.  As packet-in messages
@@ -311,7 +307,7 @@ class MonitorPacketIn(CompleteHandshake):
     def __init__(self):
        CompleteHandshake.__init__(self, keep_alive=True, report_pkts=True)
 
-@disabled
+#@disabled
 class HandshakeNoEcho(CompleteHandshake):
     """
     Complete handshake, but otherwise do nothing, and do not respond to echo.
@@ -320,7 +316,7 @@ class HandshakeNoEcho(CompleteHandshake):
     def __init__(self):
        CompleteHandshake.__init__(self, keep_alive=False)
 
-@disabled
+#@disabled
 class HandshakeAndDrop(CompleteHandshake):
     """
     Complete handshake, but otherwise do nothing, and drop connection after a while.

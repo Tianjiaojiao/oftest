@@ -33,19 +33,16 @@ def delete_all_flows(ctrl, send_barrier=True):
     """
 
     logging.info("Deleting all flows")
+    """
     msg = ofp.message.flow_delete()
-    if ofp.POF_VERSION in [1, 2]:
-        msg.match.wildcards = ofp.OFPFW_ALL
-        msg.out_port = ofp.OFPP_NONE
-        msg.buffer_id = 0xffffffff
-    elif ofp.POF_VERSION >= 3:
-        msg.table_id = ofp.OFPTT_ALL
-        msg.buffer_id = ofp.OFP_NO_BUFFER
-        msg.out_port = ofp.OFPP_ANY
-        msg.out_group = ofp.OFPG_ANY
+    msg.table_id = ofp.POFTT_ALL
+    msg.buffer_id = ofp.POF_NO_BUFFER
+    msg.out_port = ofp.POFP_ANY
+    msg.out_group = ofp.POFG_ANY
     ctrl.message_send(msg)
     if send_barrier:
         do_barrier(ctrl)
+    """
     return 0 # for backwards compatibility
 
 def delete_all_groups(ctrl):
@@ -55,15 +52,15 @@ def delete_all_groups(ctrl):
     """
 
     logging.info("Deleting all groups")
-    msg = ofp.message.group_delete(group_id=ofp.OFPG_ALL)
+    msg = ofp.message.group_delete(group_id=ofp.POFG_ALL)
     ctrl.message_send(msg)
     do_barrier(ctrl)
 
 def required_wildcards(parent):
     w = test_param_get('required_wildcards', default='default')
     if w == 'l3-l4':
-        return (ofp.OFPFW_NW_SRC_ALL | ofp.OFPFW_NW_DST_ALL | ofp.OFPFW_NW_TOS
-                | ofp.OFPFW_NW_PROTO | ofp.OFPFW_TP_SRC | ofp.OFPFW_TP_DST)
+        return (ofp.POFFW_NW_SRC_ALL | ofp.POFFW_NW_DST_ALL | ofp.POFFW_NW_TOS
+                | ofp.POFFW_NW_PROTO | ofp.POFFW_TP_SRC | ofp.POFFW_TP_DST)
     else:
         return 0
 
@@ -584,7 +581,7 @@ def simple_vxlan_packet(pktlen=300,
         pkt = pkt/simple_tcp_packet(pktlen = pktlen - len(pkt))
 
     return pkt
-
+'''
 def do_barrier(ctrl, timeout=-1):
     """
     Do a barrier command
@@ -596,7 +593,9 @@ def do_barrier(ctrl, timeout=-1):
         raise AssertionError("barrier failed")
     # We'll trust the transaction processing in the controller that xid matched
     return 0 # for backwards compatibility
-
+'''
+'''
+because multipart request do not implement ,we can not get port config
 def port_config_get(controller, port_no):
     """
     Get a port's configuration
@@ -608,23 +607,13 @@ def port_config_get(controller, port_no):
     advertised values
     """
 
-    if ofp.POF_VERSION <= 3:
-        request = ofp.message.features_request()
-        reply, _ = controller.transact(request)
-        if reply is None:
-            logging.warn("Get feature request failed")
-            return None, None, None
-        logging.debug(reply.show())
-        ports = reply.ports
-    else:
-        request = ofp.message.port_desc_stats_request()
-        # TODO do multipart correctly
-        reply, _ = controller.transact(request)
-        if reply is None:
-            logging.warn("Port desc stats request failed")
-            return None, None, None
-        logging.debug(reply.show())
-        ports = reply.entries
+    request = ofp.message.features_request()
+    reply, _ = controller.transact(request)
+    if reply is None:
+        logging.warn("Get feature request failed")
+        return None, None, None
+    logging.debug(reply.show())
+    ports = reply.ports
 
     for port in ports:
         if port.port_no == port_no:
@@ -632,7 +621,7 @@ def port_config_get(controller, port_no):
     
     logging.warn("Did not find port number for port config")
     return None, None, None
-
+'''
 def port_config_set(controller, port_no, config, mask):
     """
     Set the port configuration according the given parameters
@@ -713,7 +702,7 @@ def receive_pkt_verify(parent, egr_ports, exp_pkt, ing_port):
     # Expect a packet from each port on egr port list
     for egr_port in egr_port_list:
         check_port = egr_port
-        if egr_port == ofp.OFPP_IN_PORT:
+        if egr_port == ofp.POFP_IN_PORT:
             check_port = ing_port
         (rcv_port, rcv_pkt, pkt_time) = parent.dataplane.poll(
             port_number=check_port, exp_pkt=exp_pkt_arg)
@@ -769,7 +758,7 @@ def match_verify(parent, req_match, res_match):
                        'Match failed: eth_type: ' + str(req_match.eth_type) +
                        " != " + str(res_match.eth_type))
 
-    if (not(req_match.wildcards & ofp.OFPFW_DL_TYPE)
+    if (not(req_match.wildcards & ofp.POFFW_DL_TYPE)
         and (req_match.eth_type == IP_ETHERTYPE)):
         parent.assertEqual(req_match.ip_dscp, res_match.ip_dscp,
                            'Match failed: ip_dscp: ' + str(req_match.ip_dscp) +
@@ -784,7 +773,7 @@ def match_verify(parent, req_match, res_match):
                            'Match failed: ipv4_dst: ' + str(req_match.ipv4_dst) +
                            " != " + str(res_match.ipv4_dst))
 
-        if (not(req_match.wildcards & ofp.OFPFW_NW_PROTO)
+        if (not(req_match.wildcards & ofp.POFFW_NW_PROTO)
             and ((req_match.ip_proto == TCP_PROTOCOL)
                  or (req_match.ip_proto == UDP_PROTOCOL))):
             parent.assertEqual(req_match.tcp_src, res_match.tcp_src,
@@ -821,7 +810,7 @@ def flow_msg_create(parent, pkt, ing_port=None, action_list=None, wildcards=None
     if wildcards is None:
         wildcards = required_wildcards(parent)
     if in_band:
-        wildcards &= ~ofp.OFPFW_IN_PORT
+        wildcards &= ~ofp.POFFW_IN_PORT
     match.wildcards = wildcards
     match.in_port = ing_port
 
@@ -834,7 +823,7 @@ def flow_msg_create(parent, pkt, ing_port=None, action_list=None, wildcards=None
     request.match = match
     request.buffer_id = 0xffffffff
     if check_expire:
-        request.flags |= ofp.OFPFF_SEND_FLOW_REM
+        request.flags |= ofp.POFFF_SEND_FLOW_REM
         request.hard_timeout = 1
 
     if ofp.POF_VERSION == 1:
@@ -917,7 +906,7 @@ def flow_match_test_port_pair(parent, ing_port, egr_ports, wildcards=None,
                         str(egr_ports))
     parent.dataplane.send(ing_port, str(pkt))
 
-    exp_ports = [ing_port if port == ofp.OFPP_IN_PORT else port for port in egr_ports]
+    exp_ports = [ing_port if port == ofp.POFP_IN_PORT else port for port in egr_ports]
     verify_packets(parent, exp_pkt, exp_ports)
 
 def flow_match_test_pktout(parent, ing_port, egr_ports,
@@ -955,7 +944,7 @@ def flow_match_test_pktout(parent, ing_port, egr_ports,
     logging.debug(msg.show())
     parent.controller.message_send(msg)
 
-    exp_ports = [ing_port if port == ofp.OFPP_IN_PORT else port for port in egr_ports]
+    exp_ports = [ing_port if port == ofp.POFP_IN_PORT else port for port in egr_ports]
     verify_packets(parent, exp_pkt, exp_ports)
 
 def get_egr_list(parent, of_ports, how_many, exclude_list=[]):
@@ -1013,7 +1002,7 @@ def flow_match_test(parent, port_map, wildcards=None, vlan_vid=-1, pkt=None,
         egr_ports = get_egr_list(parent, of_ports, egr_count, 
                                  exclude_list=[ingress_port])
         if ing_port:
-            egr_ports.append(ofp.OFPP_IN_PORT)
+            egr_ports.append(ofp.POFP_IN_PORT)
         if len(egr_ports) == 0:
             parent.assertTrue(0, "Failed to generate egress port list")
 
@@ -1033,7 +1022,7 @@ def flow_match_test(parent, port_map, wildcards=None, vlan_vid=-1, pkt=None,
     egr_ports = get_egr_list(parent, of_ports, egr_count,
                              exclude_list=[ingress_port])
     if ing_port:
-        egr_ports.append(ofp.OFPP_IN_PORT)
+        egr_ports.append(ofp.POFP_IN_PORT)
     flow_match_test_pktout(parent, ingress_port, egr_ports,
                            vlan_vid=vlan_vid,
                            pkt=pkt, exp_pkt=exp_pkt,
@@ -1231,13 +1220,13 @@ def pkt_action_setup(parent, start_field_vals={}, mod_field_vals={},
 # If in_band is true, then only drop from first test port
 def flow_mod_gen(port_map, in_band):
     request = ofp.message.flow_add()
-    request.match.wildcards = ofp.OFPFW_ALL
-    if in_band:
-        request.match.wildcards = ofp.OFPFW_ALL - ofp.OFPFW_IN_PORT
-        for of_port, ifname in port_map.items(): # Grab first port
-            break
-        request.match.in_port = of_port
-    request.buffer_id = 0xffffffff
+    #request.match.wildcards = ofp.POFFW_ALL
+    #if in_band:
+    #    request.match.wildcards = ofp.POFFW_ALL - ofp.POFFW_IN_PORT
+    #    for of_port, ifname in port_map.items(): # Grab first port
+    #        break
+    #    request.match.in_port = of_port
+    #request.buffer_id = 0xffffffff
     return request
 
 def skip_message_emit(parent, s):
@@ -1265,9 +1254,9 @@ def all_stats_get(parent):
     """
     stat_req = ofp.message.aggregate_stats_request()
     stat_req.match = ofp.match()
-    stat_req.match.wildcards = ofp.OFPFW_ALL
+    stat_req.match.wildcards = ofp.POFFW_ALL
     stat_req.table_id = 0xff
-    stat_req.out_port = ofp.OFPP_NONE
+    stat_req.out_port = ofp.POFP_NONE
 
     rv = {}
 
@@ -1404,10 +1393,10 @@ assert(parse_version("1.0+") == set(["1.0", "1.1", "1.2", "1.3"]))
 
 def get_stats(test, req):
     """
-    Retrieve a list of stats entries. Handles OFPSF_REPLY_MORE.
+    Retrieve a list of stats entries. Handles POFSF_REPLY_MORE.
     """
     msgtype = ofp.POFT_STATS_REPLY
-    more_flag = ofp.OFPSF_REPLY_MORE
+    more_flag = ofp.POFSF_REPLY_MORE
     stats = []
     reply, _ = test.controller.transact(req)
     test.assertTrue(reply is not None, "No response to stats request")
@@ -1430,17 +1419,17 @@ def get_flow_stats(test, match, table_id=None,
         if ofp.POF_VERSION <= 2:
             table_id = 0xff
         else:
-            table_id = ofp.OFPTT_ALL
+            table_id = ofp.POFTT_ALL
 
     if out_port == None:
         if ofp.POF_VERSION == 1:
-            out_port = ofp.OFPP_NONE
+            out_port = ofp.POFP_NONE
         else:
-            out_port = ofp.OFPP_ANY
+            out_port = ofp.POFP_ANY
 
     if out_group == None:
         if ofp.POF_VERSION > 1:
-            out_group = ofp.OFPP_ANY
+            out_group = ofp.POFP_ANY
 
     req = ofp.message.flow_stats_request(match=match,
                                          table_id=table_id,
@@ -1651,7 +1640,7 @@ def verify_packet_in(test, data, in_port, reason, controller=None):
     @param test Instance of base_tests.SimpleProtocol
     @param pkt String to expect as the packet_in data
     @param in_port OpenFlow port number to expect as the packet_in in_port
-    @param reason One of OFPR_* to expect as the packet_in reason
+    @param reason One of POFR_* to expect as the packet_in reason
     @param controller Controller instance, defaults to test.controller
     @returns The received packet-in message
     """
@@ -1775,11 +1764,11 @@ def verify_packets(test, pkt, ofports):
 def verify_no_errors(ctrl):
     error, _ = ctrl.poll(ofp.POFT_ERROR, 0)
     if error:
-        if error.version >= 3 and isinstance(error, ofp.message.bsn_error):
-            raise AssertionError("unexpected error type=%d msg=%s" %
-                                 (error.err_type, error.err_msg))
-        else:
-            raise AssertionError("unexpected error type=%d code=%d" %
+       # if error.version >= 3 and isinstance(error, ofp.message.bsn_error):
+       #     raise AssertionError("unexpected error type=%d msg=%s" %
+       #                          (error.err_type, error.err_msg))
+       # else:
+       raise AssertionError("unexpected error type=%d code=%d" %
                                  (error.err_type, error.code))
 
 def verify_capability(test, capability):
@@ -1787,12 +1776,12 @@ def verify_capability(test, capability):
     Return True if DUT supports the specified capability.
 
     @param test Instance of base_tests.SimpleProtocol
-    @param capability One of ofp_capabilities.
+    @param capability One of pof_capabilities.
     """
     logging.info("Verifing that capability code is valid.")
-    test.assertIn(capability, ofp.const.ofp_capabilities_map,
+    test.assertIn(capability, ofp.const.pof_capabilities_map,
                   "Capability code %d does not exist." % capability)
-    capability_str = ofp.const.ofp_capabilities_map[capability]
+    capability_str = ofp.const.pof_capabilities_map[capability]
     
     logging.info(("Sending features_request to test if capability "
                   "%s is supported."), capability_str)
@@ -1818,13 +1807,13 @@ def verify_configuration_flag(test, flag):
     Return True if DUT supports specified configuration flag.
 
     @param test Instance of base_tests.SimpleProtocol
-    @param flag One of ofp_config_flags.
+    @param flag One of pof_config_flags.
     @returns (supported, flags) Bool if flag is set and flag values.
     """
     logging.info("Verifing that flag is valid.")
-    test.assertIn(flag, ofp.const.ofp_config_flags_map,
+    test.assertIn(flag, ofp.const.pof_config_flags_map,
                   "flag  %s does not exist." % flag)
-    flag_str = ofp.const.ofp_config_flags_map[flag]
+    flag_str = ofp.const.pof_config_flags_map[flag]
 
     logging.info("Sending POFT_GET_CONFIG_REQUEST.")    
     req = ofp.message.get_config_request()

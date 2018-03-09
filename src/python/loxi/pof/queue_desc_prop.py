@@ -14,7 +14,7 @@ import loxi.generic_util
 import sys
 ofp = sys.modules['loxi.pof']
 
-#-----queue desc, used for Body for OFPMP_QUEUE_DESC, pofswitch do not implement-----
+#-----queue desc, used for Body for POFMP_QUEUE_DESC, pofswitch do not implement-----
 class queue_desc_prop(loxi.OFObject):
     subtypes = {}
 

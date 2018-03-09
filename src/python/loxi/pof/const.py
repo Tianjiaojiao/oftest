@@ -37,7 +37,20 @@ POF_MTU_LENGTH = 1514
 POF_MAX_FIELD_LENGTH_IN_BYTE = 16
 POF_MAX_MATCH_FIELD_NUM = 8
 
+#Identifiers from group pof_table_type
+POF_MM_TABLE = 0
+POF_LPM_TABLE = 1
+POF_EM_TABLE = 2
+POF_LINEAR_TABLE = 3
+POF_MAX_TABLE_TYPE = 4
 
+pof_table_type = {
+    0: 'POF_MM_TABLE',
+    1: 'POF_LPM_TABLE',
+    2: 'POF_EM_TABLE',
+    3: 'POF_LINEAR_TABLE',
+    4: 'POF_MAX_TABLE_TYPE',
+}
 
 '''
 # Identifiers from group pof_action_type
@@ -59,38 +72,38 @@ OFPAT_PUSH_PBB = 26
 OFPAT_POP_PBB = 27
 OFPAT_EXPERIMENTER = 65535
 
-ofp_action_type_map = {
-    0: 'OFPAT_OUTPUT',
-    11: 'OFPAT_COPY_TTL_OUT',
-    12: 'OFPAT_COPY_TTL_IN',
-    15: 'OFPAT_SET_MPLS_TTL',
-    16: 'OFPAT_DEC_MPLS_TTL',
-    17: 'OFPAT_PUSH_VLAN',
-    18: 'OFPAT_POP_VLAN',
-    19: 'OFPAT_PUSH_MPLS',
-    20: 'OFPAT_POP_MPLS',
-    21: 'OFPAT_SET_QUEUE',
-    22: 'OFPAT_GROUP',
-    23: 'OFPAT_SET_NW_TTL',
-    24: 'OFPAT_DEC_NW_TTL',
-    25: 'OFPAT_SET_FIELD',
-    26: 'OFPAT_PUSH_PBB',
-    27: 'OFPAT_POP_PBB',
-    65535: 'OFPAT_EXPERIMENTER',
+pof_action_type_map = {
+    0: 'POFAT_OUTPUT',
+    11: 'POFAT_COPY_TTL_OUT',
+    12: 'POFAT_COPY_TTL_IN',
+    15: 'POFAT_SET_MPLS_TTL',
+    16: 'POFAT_DEC_MPLS_TTL',
+    17: 'POFAT_PUSH_VLAN',
+    18: 'POFAT_POP_VLAN',
+    19: 'POFAT_PUSH_MPLS',
+    20: 'POFAT_POP_MPLS',
+    21: 'POFAT_SET_QUEUE',
+    22: 'POFAT_GROUP',
+    23: 'POFAT_SET_NW_TTL',
+    24: 'POFAT_DEC_NW_TTL',
+    25: 'POFAT_SET_FIELD',
+    26: 'POFAT_PUSH_PBB',
+    27: 'POFAT_POP_PBB',
+    65535: 'POFAT_EXPERIMENTER',
 }
 '''
-# Identifiers from group ofp_async_config_failed_code
+# Identifiers from group pof_async_config_failed_code
 OFPACFC_INVALID = 0
 OFPACFC_UNSUPPORTED = 1
 OFPACFC_EPERM = 2
 
-ofp_async_config_failed_code_map = {
-    0: 'OFPACFC_INVALID',
-    1: 'OFPACFC_UNSUPPORTED',
-    2: 'OFPACFC_EPERM',
+pof_async_config_failed_code_map = {
+    0: 'POFACFC_INVALID',
+    1: 'POFACFC_UNSUPPORTED',
+    2: 'POFACFC_EPERM',
 }
 '''
-# Identifiers from group ofp_bad_action_code
+# Identifiers from group pof_bad_action_code
 OFPBAC_BAD_TYPE = 0
 OFPBAC_BAD_LEN = 1
 OFPBAC_BAD_EXPERIMENTER = 2
@@ -108,23 +121,23 @@ OFPBAC_BAD_SET_TYPE = 13
 OFPBAC_BAD_SET_LEN = 14
 OFPBAC_BAD_SET_ARGUMENT = 15
 
-ofp_bad_action_code_map = {
-    0: 'OFPBAC_BAD_TYPE',
-    1: 'OFPBAC_BAD_LEN',
-    2: 'OFPBAC_BAD_EXPERIMENTER',
-    3: 'OFPBAC_BAD_EXPERIMENTER_TYPE',
-    4: 'OFPBAC_BAD_OUT_PORT',
-    5: 'OFPBAC_BAD_ARGUMENT',
-    6: 'OFPBAC_EPERM',
-    7: 'OFPBAC_TOO_MANY',
-    8: 'OFPBAC_BAD_QUEUE',
-    9: 'OFPBAC_BAD_OUT_GROUP',
-    10: 'OFPBAC_MATCH_INCONSISTENT',
-    11: 'OFPBAC_UNSUPPORTED_ORDER',
-    12: 'OFPBAC_BAD_TAG',
-    13: 'OFPBAC_BAD_SET_TYPE',
-    14: 'OFPBAC_BAD_SET_LEN',
-    15: 'OFPBAC_BAD_SET_ARGUMENT',
+pof_bad_action_code_map = {
+    0: 'POFBAC_BAD_TYPE',
+    1: 'POFBAC_BAD_LEN',
+    2: 'POFBAC_BAD_EXPERIMENTER',
+    3: 'POFBAC_BAD_EXPERIMENTER_TYPE',
+    4: 'POFBAC_BAD_OUT_PORT',
+    5: 'POFBAC_BAD_ARGUMENT',
+    6: 'POFBAC_EPERM',
+    7: 'POFBAC_TOO_MANY',
+    8: 'POFBAC_BAD_QUEUE',
+    9: 'POFBAC_BAD_OUT_GROUP',
+    10: 'POFBAC_MATCH_INCONSISTENT',
+    11: 'POFBAC_UNSUPPORTED_ORDER',
+    12: 'POFBAC_BAD_TAG',
+    13: 'POFBAC_BAD_SET_TYPE',
+    14: 'POFBAC_BAD_SET_LEN',
+    15: 'POFBAC_BAD_SET_ARGUMENT',
 }
 '''
 # Identifiers from group pof_bad_instruction_code
@@ -143,7 +156,7 @@ POFBIC_ENTRY_UNEXIST = 18
 POFBIC_BAD_OFFSET = 19
 POFBIC_JUM_TO_INVALID_INST = 20 #jump to an invalid instruction
 
-ofp_bad_instruction_code_map = {
+pof_bad_instruction_code_map = {
     0: 'POFBIC_UNKNOWN_INST',
     1: 'POFBIC_UNSUP_INST',
     2: 'POFBIC_BAD_TABLE_ID',
@@ -189,7 +202,7 @@ pof_bad_match_code_map = {
     11: 'POFBMC_EPERM',
 }
 
-# Identifiers from group ofp_bad_property_code
+# Identifiers from group pof_bad_property_code
 OFPBPC_BAD_TYPE = 0
 OFPBPC_BAD_LEN = 1
 OFPBPC_BAD_VALUE = 2
@@ -200,16 +213,16 @@ OFPBPC_BAD_EXP_TYPE = 6
 OFPBPC_BAD_EXP_VALUE = 7
 OFPBPC_EPERM = 8
 
-ofp_bad_property_code_map = {
-    0: 'OFPBPC_BAD_TYPE',
-    1: 'OFPBPC_BAD_LEN',
-    2: 'OFPBPC_BAD_VALUE',
-    3: 'OFPBPC_TOO_MANY',
-    4: 'OFPBPC_DUP_TYPE',
-    5: 'OFPBPC_BAD_EXPERIMENTER',
-    6: 'OFPBPC_BAD_EXP_TYPE',
-    7: 'OFPBPC_BAD_EXP_VALUE',
-    8: 'OFPBPC_EPERM',
+pof_bad_property_code_map = {
+    0: 'POFBPC_BAD_TYPE',
+    1: 'POFBPC_BAD_LEN',
+    2: 'POFBPC_BAD_VALUE',
+    3: 'POFBPC_TOO_MANY',
+    4: 'POFBPC_DUP_TYPE',
+    5: 'POFBPC_BAD_EXPERIMENTER',
+    6: 'POFBPC_BAD_EXP_TYPE',
+    7: 'POFBPC_BAD_EXP_VALUE',
+    8: 'POFBPC_EPERM',
 }
 
 # Identifiers from group pof_bad_request_code
@@ -246,7 +259,7 @@ pof_bad_request_code_map = {
     13: 'POFBRC_MULTIPART_BUFFER_OVERFLOW',
 }
 
-# Identifiers from group ofp_bundle_ctrl_type
+# Identifiers from group pof_bundle_ctrl_type
 OFPBCT_OPEN_REQUEST = 0
 OFPBCT_OPEN_REPLY = 1
 OFPBCT_CLOSE_REQUEST = 2
@@ -256,18 +269,18 @@ OFPBCT_COMMIT_REPLY = 5
 OFPBCT_DISCARD_REQUEST = 6
 OFPBCT_DISCARD_REPLY = 7
 
-ofp_bundle_ctrl_type_map = {
-    0: 'OFPBCT_OPEN_REQUEST',
-    1: 'OFPBCT_OPEN_REPLY',
-    2: 'OFPBCT_CLOSE_REQUEST',
-    3: 'OFPBCT_CLOSE_REPLY',
-    4: 'OFPBCT_COMMIT_REQUEST',
-    5: 'OFPBCT_COMMIT_REPLY',
-    6: 'OFPBCT_DISCARD_REQUEST',
-    7: 'OFPBCT_DISCARD_REPLY',
+pof_bundle_ctrl_type_map = {
+    0: 'POFBCT_OPEN_REQUEST',
+    1: 'POFBCT_OPEN_REPLY',
+    2: 'POFBCT_CLOSE_REQUEST',
+    3: 'POFBCT_CLOSE_REPLY',
+    4: 'POFBCT_COMMIT_REQUEST',
+    5: 'POFBCT_COMMIT_REPLY',
+    6: 'POFBCT_DISCARD_REQUEST',
+    7: 'POFBCT_DISCARD_REPLY',
 }
 
-# Identifiers from group ofp_bundle_failed_code
+# Identifiers from group pof_bundle_failed_code
 OFPBFC_UNKNOWN = 0
 OFPBFC_EPERM = 1
 OFPBFC_BAD_ID = 2
@@ -285,32 +298,32 @@ OFPBFC_MSG_FAILED = 13
 OFPBFC_TIMEOUT = 14
 OFPBFC_BUNDLE_IN_PROGRESS = 15
 
-ofp_bundle_failed_code_map = {
-    0: 'OFPBFC_UNKNOWN',
-    1: 'OFPBFC_EPERM',
-    2: 'OFPBFC_BAD_ID',
-    3: 'OFPBFC_BUNDLE_EXIST',
-    4: 'OFPBFC_BUNDLE_CLOSED',
-    5: 'OFPBFC_OUT_OF_BUNDLES',
-    6: 'OFPBFC_BAD_TYPE',
-    7: 'OFPBFC_BAD_FLAGS',
-    8: 'OFPBFC_MSG_BAD_LEN',
-    9: 'OFPBFC_MSG_BAD_XID',
-    10: 'OFPBFC_MSG_UNSUP',
-    11: 'OFPBFC_MSG_CONFLICT',
-    12: 'OFPBFC_MSG_TOO_MANY',
-    13: 'OFPBFC_MSG_FAILED',
-    14: 'OFPBFC_TIMEOUT',
-    15: 'OFPBFC_BUNDLE_IN_PROGRESS',
+pof_bundle_failed_code_map = {
+    0: 'POFBFC_UNKNOWN',
+    1: 'POFBFC_EPERM',
+    2: 'POFBFC_BAD_ID',
+    3: 'POFBFC_BUNDLE_EXIST',
+    4: 'POFBFC_BUNDLE_CLOSED',
+    5: 'POFBFC_OUT_OF_BUNDLES',
+    6: 'POFBFC_BAD_TYPE',
+    7: 'POFBFC_BAD_FLAGS',
+    8: 'POFBFC_MSG_BAD_LEN',
+    9: 'POFBFC_MSG_BAD_XID',
+    10: 'POFBFC_MSG_UNSUP',
+    11: 'POFBFC_MSG_CONFLICT',
+    12: 'POFBFC_MSG_TOO_MANY',
+    13: 'POFBFC_MSG_FAILED',
+    14: 'POFBFC_TIMEOUT',
+    15: 'POFBFC_BUNDLE_IN_PROGRESS',
 }
 
-# Identifiers from group ofp_bundle_flags
+# Identifiers from group pof_bundle_flags
 OFPBF_ATOMIC = 1
 OFPBF_ORDERED = 2
 
-ofp_bundle_flags_map = {
-    1: 'OFPBF_ATOMIC',
-    2: 'OFPBF_ORDERED',
+pof_bundle_flags_map = {
+    1: 'POFBF_ATOMIC',
+    2: 'POFBF_ORDERED',
 }
 
 # Identifiers from group pof_capabilities
@@ -345,37 +358,37 @@ pof_config_flags_map = {
     3: 'POFC_FRAG_MASK',
 }
 
-# Identifiers from group ofp_controller_max_len
+# Identifiers from group pof_controller_max_len
 OFPCML_MAX = 65509
 OFPCML_NO_BUFFER = 65535
 
-ofp_controller_max_len_map = {
-    65509: 'OFPCML_MAX',
-    65535: 'OFPCML_NO_BUFFER',
+pof_controller_max_len_map = {
+    65509: 'POFCML_MAX',
+    65535: 'POFCML_NO_BUFFER',
 }
 
-# Identifiers from group ofp_controller_role
+# Identifiers from group pof_controller_role
 OFPCR_ROLE_NOCHANGE = 0
 OFPCR_ROLE_EQUAL = 1
 OFPCR_ROLE_MASTER = 2
 OFPCR_ROLE_SLAVE = 3
 
-ofp_controller_role_map = {
-    0: 'OFPCR_ROLE_NOCHANGE',
-    1: 'OFPCR_ROLE_EQUAL',
-    2: 'OFPCR_ROLE_MASTER',
-    3: 'OFPCR_ROLE_SLAVE',
+pof_controller_role_map = {
+    0: 'POFCR_ROLE_NOCHANGE',
+    1: 'POFCR_ROLE_EQUAL',
+    2: 'POFCR_ROLE_MASTER',
+    3: 'POFCR_ROLE_SLAVE',
 }
 
-# Identifiers from group ofp_controller_role_reason
+# Identifiers from group pof_controller_role_reason
 OFPCRR_MASTER_REQUEST = 0
 OFPCRR_CONFIG = 1
 OFPCRR_EXPERIMENTER = 2
 
-ofp_controller_role_reason_map = {
-    0: 'OFPCRR_MASTER_REQUEST',
-    1: 'OFPCRR_CONFIG',
-    2: 'OFPCRR_EXPERIMENTER',
+pof_controller_role_reason_map = {
+    0: 'POFCRR_MASTER_REQUEST',
+    1: 'POFCRR_CONFIG',
+    2: 'POFCRR_EXPERIMENTER',
 }
 
 # Identifiers from group pof_error_type
@@ -522,11 +535,11 @@ POFFC_QUERY = 5
 POFFC_QUERY_RESULT = 6
 
 pof_flow_mod_command_map = {
-    0: 'POFPFC_ADD',
-    1: 'POFPFC_MODIFY',
-    2: 'POFPFC_MODIFY_STRICT',
-    3: 'POFPFC_DELETE',
-    4: 'POFPFC_DELETE_STRICT',
+    0: 'PPOFFC__ADD',
+    1: 'PPOFFC__MODIFY',
+    2: 'PPOFFC__MODIFY_STRICT',
+    3: 'PPOFFC__DELETE',
+    4: 'PPOFFC__DELETE_STRICT',
     5: 'POFFC_QUERY',
     6: 'POFFC_QUERY_RESULT',
 }
@@ -562,7 +575,7 @@ pof_group_flow_mod_failed_code_map = {
     12: 'POFFMFC_BAD_COUNTER_ID',
 }
 
-# Identifiers from group ofp_flow_mod_flags
+# Identifiers from group pof_flow_mod_flags
 OFPFF_SEND_FLOW_REM = 1
 OFPFF_CHECK_OVERLAP = 2
 OFPFF_RESET_COUNTS = 4
@@ -570,16 +583,16 @@ OFPFF_NO_PKT_COUNTS = 8
 OFPFF_NO_BYT_COUNTS = 16
 OFPFF_BSN_SEND_IDLE = 128
 
-ofp_flow_mod_flags_map = {
-    1: 'OFPFF_SEND_FLOW_REM',
-    2: 'OFPFF_CHECK_OVERLAP',
-    4: 'OFPFF_RESET_COUNTS',
-    8: 'OFPFF_NO_PKT_COUNTS',
-    16: 'OFPFF_NO_BYT_COUNTS',
-    128: 'OFPFF_BSN_SEND_IDLE',
+pof_flow_mod_flags_map = {
+    1: 'POFFF_SEND_FLOW_REM',
+    2: 'POFFF_CHECK_OVERLAP',
+    4: 'POFFF_RESET_COUNTS',
+    8: 'POFFF_NO_PKT_COUNTS',
+    16: 'POFFF_NO_BYT_COUNTS',
+    128: 'POFFF_BSN_SEND_IDLE',
 }
 
-# Identifiers from group ofp_flow_monitor_failed_code
+# Identifiers from group pof_flow_monitor_failed_code
 OFPMOFC_UNKNOWN = 0
 OFPMOFC_MONITOR_EXISTS = 1
 OFPMOFC_INVALID_MONITOR = 2
@@ -589,18 +602,18 @@ OFPMOFC_BAD_FLAGS = 5
 OFPMOFC_BAD_TABLE_ID = 6
 OFPMOFC_BAD_OUT = 7
 
-ofp_flow_monitor_failed_code_map = {
-    0: 'OFPMOFC_UNKNOWN',
-    1: 'OFPMOFC_MONITOR_EXISTS',
-    2: 'OFPMOFC_INVALID_MONITOR',
-    3: 'OFPMOFC_UNKNOWN_MONITOR',
-    4: 'OFPMOFC_BAD_COMMAND',
-    5: 'OFPMOFC_BAD_FLAGS',
-    6: 'OFPMOFC_BAD_TABLE_ID',
-    7: 'OFPMOFC_BAD_OUT',
+pof_flow_monitor_failed_code_map = {
+    0: 'POFMOFC_UNKNOWN',
+    1: 'POFMOFC_MONITOR_EXISTS',
+    2: 'POFMOFC_INVALID_MONITOR',
+    3: 'POFMOFC_UNKNOWN_MONITOR',
+    4: 'POFMOFC_BAD_COMMAND',
+    5: 'POFMOFC_BAD_FLAGS',
+    6: 'POFMOFC_BAD_TABLE_ID',
+    7: 'POFMOFC_BAD_OUT',
 }
 
-# Identifiers from group ofp_flow_removed_reason
+# Identifiers from group pof_flow_removed_reason
 OFPRR_IDLE_TIMEOUT = 0
 OFPRR_HARD_TIMEOUT = 1
 OFPRR_DELETE = 2
@@ -608,37 +621,37 @@ OFPRR_GROUP_DELETE = 3
 OFPRR_METER_DELETE = 4
 OFPRR_EVICTION = 5
 
-ofp_flow_removed_reason_map = {
-    0: 'OFPRR_IDLE_TIMEOUT',
-    1: 'OFPRR_HARD_TIMEOUT',
-    2: 'OFPRR_DELETE',
-    3: 'OFPRR_GROUP_DELETE',
-    4: 'OFPRR_METER_DELETE',
-    5: 'OFPRR_EVICTION',
+pof_flow_removed_reason_map = {
+    0: 'POFRR_IDLE_TIMEOUT',
+    1: 'POFRR_HARD_TIMEOUT',
+    2: 'POFRR_DELETE',
+    3: 'POFRR_GROUP_DELETE',
+    4: 'POFRR_METER_DELETE',
+    5: 'POFRR_EVICTION',
 }
 
-# Identifiers from group ofp_group
+# Identifiers from group pof_group
 OFPG_MAX = 4294967040
 OFPG_ALL = 4294967292
 OFPG_ANY = 4294967295
 
-ofp_group_map = {
-    4294967040: 'OFPG_MAX',
-    4294967292: 'OFPG_ALL',
-    4294967295: 'OFPG_ANY',
+pof_group_map = {
+    4294967040: 'POFG_MAX',
+    4294967292: 'POFG_ALL',
+    4294967295: 'POFG_ANY',
 }
 
-# Identifiers from group ofp_group_capabilities
+# Identifiers from group pof_group_capabilities
 OFPGFC_SELECT_WEIGHT = 1
 OFPGFC_SELECT_LIVENESS = 2
 OFPGFC_CHAINING = 4
 OFPGFC_CHAINING_CHECKS = 8
 
-ofp_group_capabilities_map = {
-    1: 'OFPGFC_SELECT_WEIGHT',
-    2: 'OFPGFC_SELECT_LIVENESS',
-    4: 'OFPGFC_CHAINING',
-    8: 'OFPGFC_CHAINING_CHECKS',
+pof_group_capabilities_map = {
+    1: 'POFGFC_SELECT_WEIGHT',
+    2: 'POFGFC_SELECT_LIVENESS',
+    4: 'POFGFC_CHAINING',
+    8: 'POFGFC_CHAINING_CHECKS',
 }
 
 # Identifiers from group pof_group_mod_command
@@ -693,24 +706,24 @@ pof_group_mod_failed_code_map = {
     15: 'POF_BAD_COUNTER_ID',
 }
 
-# Identifiers from group ofp_group_type
+# Identifiers from group pof_group_type
 OFPGT_ALL = 0
 OFPGT_SELECT = 1
 OFPGT_INDIRECT = 2
 OFPGT_FF = 3
 
-ofp_group_type_map = {
-    0: 'OFPGT_ALL',
-    1: 'OFPGT_SELECT',
-    2: 'OFPGT_INDIRECT',
-    3: 'OFPGT_FF',
+pof_group_type_map = {
+    0: 'POFGT_ALL',
+    1: 'POFGT_SELECT',
+    2: 'POFGT_INDIRECT',
+    3: 'POFGT_FF',
 }
 
-# Identifiers from group ofp_hello_elem_type
+# Identifiers from group pof_hello_elem_type
 OFPHET_VERSIONBITMAP = 1
 
-ofp_hello_elem_type_map = {
-    1: 'OFPHET_VERSIONBITMAP',
+pof_hello_elem_type_map = {
+    1: 'POFHET_VERSIONBITMAP',
 }
 
 # Identifiers from group pof_hello_failed_code
@@ -759,7 +772,7 @@ pof_instruction_type_map = {
     65535: 'POFIT_EXPERIMENTER',
 }
 
-# Identifiers from group ofp_ipv6exthdr_flags
+# Identifiers from group pof_ipv6exthdr_flags
 OFPIEH_NONEXT = 1
 OFPIEH_ESP = 2
 OFPIEH_AUTH = 4
@@ -770,62 +783,62 @@ OFPIEH_HOP = 64
 OFPIEH_UNREP = 128
 OFPIEH_UNSEQ = 256
 
-ofp_ipv6exthdr_flags_map = {
-    1: 'OFPIEH_NONEXT',
-    2: 'OFPIEH_ESP',
-    4: 'OFPIEH_AUTH',
-    8: 'OFPIEH_DEST',
-    16: 'OFPIEH_FRAG',
-    32: 'OFPIEH_ROUTER',
-    64: 'OFPIEH_HOP',
-    128: 'OFPIEH_UNREP',
-    256: 'OFPIEH_UNSEQ',
+pof_ipv6exthdr_flags_map = {
+    1: 'POFIEH_NONEXT',
+    2: 'POFIEH_ESP',
+    4: 'POFIEH_AUTH',
+    8: 'POFIEH_DEST',
+    16: 'POFIEH_FRAG',
+    32: 'POFIEH_ROUTER',
+    64: 'POFIEH_HOP',
+    128: 'POFIEH_UNREP',
+    256: 'POFIEH_UNSEQ',
 }
 
-# Identifiers from group ofp_match_type
+# Identifiers from group pof_match_type
 OFPMT_STANDARD = 0
 OFPMT_OXM = 1
 
-ofp_match_type_map = {
-    0: 'OFPMT_STANDARD',
-    1: 'OFPMT_OXM',
+pof_match_type_map = {
+    0: 'POFMT_STANDARD',
+    1: 'POFMT_OXM',
 }
 
-# Identifiers from group ofp_meter
+# Identifiers from group pof_meter
 OFPM_MAX = 4294901760
 OFPM_SLOWPATH = 4294967293
 OFPM_CONTROLLER = 4294967294
 OFPM_ALL = 4294967295
 
-ofp_meter_map = {
-    4294901760: 'OFPM_MAX',
-    4294967293: 'OFPM_SLOWPATH',
-    4294967294: 'OFPM_CONTROLLER',
-    4294967295: 'OFPM_ALL',
+pof_meter_map = {
+    4294901760: 'POFM_MAX',
+    4294967293: 'POFM_SLOWPATH',
+    4294967294: 'POFM_CONTROLLER',
+    4294967295: 'POFM_ALL',
 }
 
-# Identifiers from group ofp_meter_band_type
+# Identifiers from group pof_meter_band_type
 OFPMBT_DROP = 1
 OFPMBT_DSCP_REMARK = 2
 OFPMBT_EXPERIMENTER = 65535
 
-ofp_meter_band_type_map = {
-    1: 'OFPMBT_DROP',
-    2: 'OFPMBT_DSCP_REMARK',
-    65535: 'OFPMBT_EXPERIMENTER',
+pof_meter_band_type_map = {
+    1: 'POFMBT_DROP',
+    2: 'POFMBT_DSCP_REMARK',
+    65535: 'POFMBT_EXPERIMENTER',
 }
 
-# Identifiers from group ofp_meter_flags
+# Identifiers from group pof_meter_flags
 OFPMF_KBPS = 1
 OFPMF_PKTPS = 2
 OFPMF_BURST = 4
 OFPMF_STATS = 8
 
-ofp_meter_flags_map = {
-    1: 'OFPMF_KBPS',
-    2: 'OFPMF_PKTPS',
-    4: 'OFPMF_BURST',
-    8: 'OFPMF_STATS',
+pof_meter_flags_map = {
+    1: 'POFMF_KBPS',
+    2: 'POFMF_PKTPS',
+    4: 'POFMF_BURST',
+    8: 'POFMF_STATS',
 }
 
 # Identifiers from group pof_meter_mod_command
@@ -872,20 +885,20 @@ pof_meter_mod_failed_code_map = {
     11: 'POFMMFC_OUT_OF_BANDS',
 }
 
-# Identifiers from group ofp_optical_port_features
+# Identifiers from group pof_optical_port_features
 OFPOPF_RX_TUNE = 1
 OFPOPF_TX_TUNE = 2
 OFPOPF_TX_PWR = 4
 OFPOPF_USE_FREQ = 8
 
-ofp_optical_port_features_map = {
-    1: 'OFPOPF_RX_TUNE',
-    2: 'OFPOPF_TX_TUNE',
-    4: 'OFPOPF_TX_PWR',
-    8: 'OFPOPF_USE_FREQ',
+pof_optical_port_features_map = {
+    1: 'POFOPF_RX_TUNE',
+    2: 'POFOPF_TX_TUNE',
+    4: 'POFOPF_TX_PWR',
+    8: 'POFOPF_USE_FREQ',
 }
 
-# Identifiers from group ofp_ovs_tcp_flag
+# Identifiers from group pof_ovs_tcp_flag
 OFP_OVS_TCP_FLAG_FIN = 1
 OFP_OVS_TCP_FLAG_SYN = 2
 OFP_OVS_TCP_FLAG_RST = 4
@@ -896,29 +909,29 @@ OFP_OVS_TCP_FLAG_ECE = 64
 OFP_OVS_TCP_FLAG_CWR = 128
 OFP_OVS_TCP_FLAG_NS = 256
 
-ofp_ovs_tcp_flag_map = {
-    1: 'OFP_OVS_TCP_FLAG_FIN',
-    2: 'OFP_OVS_TCP_FLAG_SYN',
-    4: 'OFP_OVS_TCP_FLAG_RST',
-    8: 'OFP_OVS_TCP_FLAG_PSH',
-    16: 'OFP_OVS_TCP_FLAG_ACK',
-    32: 'OFP_OVS_TCP_FLAG_URG',
-    64: 'OFP_OVS_TCP_FLAG_ECE',
-    128: 'OFP_OVS_TCP_FLAG_CWR',
-    256: 'OFP_OVS_TCP_FLAG_NS',
+pof_ovs_tcp_flag_map = {
+    1: 'POF_OVS_TCP_FLAG_FIN',
+    2: 'POF_OVS_TCP_FLAG_SYN',
+    4: 'POF_OVS_TCP_FLAG_RST',
+    8: 'POF_OVS_TCP_FLAG_PSH',
+    16: 'POF_OVS_TCP_FLAG_ACK',
+    32: 'POF_OVS_TCP_FLAG_URG',
+    64: 'POF_OVS_TCP_FLAG_ECE',
+    128: 'POF_OVS_TCP_FLAG_CWR',
+    256: 'POF_OVS_TCP_FLAG_NS',
 }
 
-# Identifiers from group ofp_oxm_class
+# Identifiers from group pof_oxm_class
 OFPXMC_NXM_0 = 0
 OFPXMC_NXM_1 = 1
 OFPXMC_OPENFLOW_BASIC = 32768
 OFPXMC_EXPERIMENTER = 65535
 
-ofp_oxm_class_map = {
-    0: 'OFPXMC_NXM_0',
-    1: 'OFPXMC_NXM_1',
-    32768: 'OFPXMC_OPENFLOW_BASIC',
-    65535: 'OFPXMC_EXPERIMENTER',
+pof_oxm_class_map = {
+    0: 'POFXMC_NXM_0',
+    1: 'POFXMC_NXM_1',
+    32768: 'POFXMC_OPENFLOW_BASIC',
+    65535: 'POFXMC_EXPERIMENTER',
 }
 
 # Identifiers from group pof_packet_in_reason
@@ -964,10 +977,10 @@ POFPC_NO_PACKET_IN = 64
 
 pof_port_config_map = {
     0: 'POFPC_UP',
-    1: 'OFPPC_PORT_DOWN',
-    4: 'OFPPC_NO_RECV',
-    32: 'OFPPC_NO_FWD',
-    64: 'OFPPC_NO_PACKET_IN',
+    1: 'POFPC_PORT_DOWN',
+    4: 'POFPC_NO_RECV',
+    32: 'POFPC_NO_FWD',
+    64: 'POFPC_NO_PACKET_IN',
 }
 
 # Identifiers from group pof_port_features
@@ -1012,8 +1025,8 @@ POFPMFC_UNKNOWN = 0
 POFPMFC_BAD_PORT_ID = 1
 
 pof_port_mod_failed_code_map = {
-    0: 'OFPPMFC_UNKNOWN',
-    1: 'OFPPMFC_BAD_PORT_ID',
+    0: 'POFPMFC_UNKNOWN',
+    1: 'POFPMFC_BAD_PORT_ID',
 }
 
 # Identifiers from group pof_port_reason
@@ -1038,7 +1051,7 @@ pof_port_state_map = {
     4: 'POFPS_LIVE',
 }
 
-# Identifiers from group ofp_port_stats_optical_flags
+# Identifiers from group pof_port_stats_optical_flags
 OFPOSF_RX_TUNE = 1
 OFPOSF_TX_TUNE = 2
 OFPOSF_TX_PWR = 4
@@ -1046,72 +1059,72 @@ OFPOSF_RX_PWR = 16
 OFPOSF_TX_BIAS = 32
 OFPOSF_TX_TEMP = 64
 
-ofp_port_stats_optical_flags_map = {
-    1: 'OFPOSF_RX_TUNE',
-    2: 'OFPOSF_TX_TUNE',
-    4: 'OFPOSF_TX_PWR',
-    16: 'OFPOSF_RX_PWR',
-    32: 'OFPOSF_TX_BIAS',
-    64: 'OFPOSF_TX_TEMP',
+pof_port_stats_optical_flags_map = {
+    1: 'POFOSF_RX_TUNE',
+    2: 'POFOSF_TX_TUNE',
+    4: 'POFOSF_TX_PWR',
+    16: 'POFOSF_RX_PWR',
+    32: 'POFOSF_TX_BIAS',
+    64: 'POFOSF_TX_TEMP',
 }
 
-# Identifiers from group ofp_port_stats_prop_type
+# Identifiers from group pof_port_stats_prop_type
 OFPPSPT_ETHERNET = 0
 OFPPSPT_OPTICAL = 1
 OFPPSPT_EXPERIMENTER = 65535
 
-ofp_port_stats_prop_type_map = {
-    0: 'OFPPSPT_ETHERNET',
-    1: 'OFPPSPT_OPTICAL',
-    65535: 'OFPPSPT_EXPERIMENTER',
+pof_port_stats_prop_type_map = {
+    0: 'POFPSPT_ETHERNET',
+    1: 'POFPSPT_OPTICAL',
+    65535: 'POFPSPT_EXPERIMENTER',
 }
 
-# Identifiers from group ofp_queue_op_failed_code
+# Identifiers from group pof_queue_op_failed_code
 OFPQOFC_BAD_PORT = 0
 OFPQOFC_BAD_QUEUE = 1
 OFPQOFC_EPERM = 2
 
-ofp_queue_op_failed_code_map = {
-    0: 'OFPQOFC_BAD_PORT',
-    1: 'OFPQOFC_BAD_QUEUE',
-    2: 'OFPQOFC_EPERM',
+pof_queue_op_failed_code_map = {
+    0: 'POFQOFC_BAD_PORT',
+    1: 'POFQOFC_BAD_QUEUE',
+    2: 'POFQOFC_EPERM',
 }
 
-# Identifiers from group ofp_request_forward_reason
+# Identifiers from group pof_request_forward_reason
 OFPRFR_GROUP_MOD = 0
 OFPRFR_METER_MOD = 1
 
-ofp_requestforward_reason_map = {
-    0: 'OFPRFR_GROUP_MOD',
-    1: 'OFPRFR_METER_MOD',
+pof_requestforward_reason_map = {
+    0: 'POFRFR_GROUP_MOD',
+    1: 'POFRFR_METER_MOD',
 }
 
-# Identifiers from group ofp_role_request_failed_code
+# Identifiers from group pof_role_request_failed_code
 OFPRRFC_STALE = 0
 OFPRRFC_UNSUP = 1
 OFPRRFC_BAD_ROLE = 2
 
-ofp_role_request_failed_code_map = {
-    0: 'OFPRRFC_STALE',
-    1: 'OFPRRFC_UNSUP',
-    2: 'OFPRRFC_BAD_ROLE',
+pof_role_request_failed_code_map = {
+    0: 'POFRRFC_STALE',
+    1: 'POFRRFC_UNSUP',
+    2: 'POFRRFC_BAD_ROLE',
 }
 
-# Identifiers from group ofp_stats_reply_flags
+# Identifiers from group pof_stats_reply_flags
 OFPSF_REPLY_MORE = 1
 
-ofp_stats_reply_flags_map = {
-    1: 'OFPSF_REPLY_MORE',
+pof_stats_reply_flags_map = {
+    1: 'POFSF_REPLY_MORE',
 }
 
-# Identifiers from group ofp_stats_request_flags
+# Identifiers from group pof_stats_request_flags
 OFPSF_REQ_MORE = 1
 
-ofp_stats_request_flags_map = {
-    1: 'OFPSF_REQ_MORE',
+pof_stats_request_flags_map = {
+    1: 'POFSF_REQ_MORE',
 }
 
-# Identifiers from group ofp_stats_type
+# Identifiers from group pof_stats_type
 OFPST_DESC = 0
 OFPST_FLOW = 1
 OFPST_AGGREGATE = 2
@@ -1131,59 +1144,59 @@ OFPMP_QUEUE_DESC = 15
 OFPMP_FLOW_MONITOR = 16
 OFPST_EXPERIMENTER = 65535
 
-ofp_stats_type_map = {
-    0: 'OFPST_DESC',
-    1: 'OFPST_FLOW',
-    2: 'OFPST_AGGREGATE',
-    3: 'OFPST_TABLE',
-    4: 'OFPST_PORT',
-    5: 'OFPST_QUEUE',
-    6: 'OFPST_GROUP',
-    7: 'OFPST_GROUP_DESC',
-    8: 'OFPST_GROUP_FEATURES',
-    9: 'OFPST_METER',
-    10: 'OFPST_METER_CONFIG',
-    11: 'OFPST_METER_FEATURES',
-    12: 'OFPST_TABLE_FEATURES',
-    13: 'OFPST_PORT_DESC',
-    14: 'OFPMP_TABLE_DESC',
-    15: 'OFPMP_QUEUE_DESC',
-    16: 'OFPMP_FLOW_MONITOR',
-    65535: 'OFPST_EXPERIMENTER',
+pof_stats_type_map = {
+    0: 'POFST_DESC',
+    1: 'POFST_FLOW',
+    2: 'POFST_AGGREGATE',
+    3: 'POFST_TABLE',
+    4: 'POFST_PORT',
+    5: 'POFST_QUEUE',
+    6: 'POFST_GROUP',
+    7: 'POFST_GROUP_DESC',
+    8: 'POFST_GROUP_FEATURES',
+    9: 'POFST_METER',
+    10: 'POFST_METER_CONFIG',
+    11: 'POFST_METER_FEATURES',
+    12: 'POFST_TABLE_FEATURES',
+    13: 'POFST_PORT_DESC',
+    14: 'POFMP_TABLE_DESC',
+    15: 'POFMP_QUEUE_DESC',
+    16: 'POFMP_FLOW_MONITOR',
+    65535: 'POFST_EXPERIMENTER',
 }
 
-# Identifiers from group ofp_switch_config_failed_code
+# Identifiers from group pof_switch_config_failed_code
 OFPSCFC_BAD_FLAGS = 0
 OFPSCFC_BAD_LEN = 1
 OFPSCFC_EPERM = 2
 
-ofp_switch_config_failed_code_map = {
-    0: 'OFPSCFC_BAD_FLAGS',
-    1: 'OFPSCFC_BAD_LEN',
-    2: 'OFPSCFC_EPERM',
+pof_switch_config_failed_code_map = {
+    0: 'POFSCFC_BAD_FLAGS',
+    1: 'POFSCFC_BAD_LEN',
+    2: 'POFSCFC_EPERM',
 }
 
-# Identifiers from group ofp_table
+# Identifiers from group pof_table
 OFPTT_MAX = 254
 OFPTT_ALL = 255
 
-ofp_table_map = {
-    254: 'OFPTT_MAX',
-    255: 'OFPTT_ALL',
+pof_table_map = {
+    254: 'POFTT_MAX',
+    255: 'POFTT_ALL',
 }
 
-# Identifiers from group ofp_table_config
+# Identifiers from group pof_table_config
 OFPTC_DEPRECATED_MASK = 3
 OFPTC_EVICTION = 4
 OFPTC_VACANCY_EVENTS = 8
 
-ofp_table_config_map = {
-    3: 'OFPTC_DEPRECATED_MASK',
-    4: 'OFPTC_EVICTION',
-    8: 'OFPTC_VACANCY_EVENTS',
+pof_table_config_map = {
+    3: 'POFTC_DEPRECATED_MASK',
+    4: 'POFTC_EVICTION',
+    8: 'POFTC_VACANCY_EVENTS',
 }
 
-# Identifiers from group ofp_table_feature_prop_type
+# Identifiers from group pof_table_feature_prop_type
 OFPTFPT_INSTRUCTIONS = 0
 OFPTFPT_INSTRUCTIONS_MISS = 1
 OFPTFPT_NEXT_TABLES = 2
@@ -1202,35 +1215,35 @@ OFPTFPT_TABLE_SYNC_FROM = 16
 OFPTFPT_EXPERIMENTER = 65534
 OFPTFPT_EXPERIMENTER_MISS = 65535
 
-ofp_table_feature_prop_type_map = {
-    0: 'OFPTFPT_INSTRUCTIONS',
-    1: 'OFPTFPT_INSTRUCTIONS_MISS',
-    2: 'OFPTFPT_NEXT_TABLES',
-    3: 'OFPTFPT_NEXT_TABLES_MISS',
-    4: 'OFPTFPT_WRITE_ACTIONS',
-    5: 'OFPTFPT_WRITE_ACTIONS_MISS',
-    6: 'OFPTFPT_APPLY_ACTIONS',
-    7: 'OFPTFPT_APPLY_ACTIONS_MISS',
-    8: 'OFPTFPT_MATCH',
-    10: 'OFPTFPT_WILDCARDS',
-    12: 'OFPTFPT_WRITE_SETFIELD',
-    13: 'OFPTFPT_WRITE_SETFIELD_MISS',
-    14: 'OFPTFPT_APPLY_SETFIELD',
-    15: 'OFPTFPT_APPLY_SETFIELD_MISS',
-    16: 'OFPTFPT_TABLE_SYNC_FROM',
-    65534: 'OFPTFPT_EXPERIMENTER',
-    65535: 'OFPTFPT_EXPERIMENTER_MISS',
+pof_table_feature_prop_type_map = {
+    0: 'POFTFPT_INSTRUCTIONS',
+    1: 'POFTFPT_INSTRUCTIONS_MISS',
+    2: 'POFTFPT_NEXT_TABLES',
+    3: 'POFTFPT_NEXT_TABLES_MISS',
+    4: 'POFTFPT_WRITE_ACTIONS',
+    5: 'POFTFPT_WRITE_ACTIONS_MISS',
+    6: 'POFTFPT_APPLY_ACTIONS',
+    7: 'POFTFPT_APPLY_ACTIONS_MISS',
+    8: 'POFTFPT_MATCH',
+    10: 'POFTFPT_WILDCARDS',
+    12: 'POFTFPT_WRITE_SETFIELD',
+    13: 'POFTFPT_WRITE_SETFIELD_MISS',
+    14: 'POFTFPT_APPLY_SETFIELD',
+    15: 'POFTFPT_APPLY_SETFIELD_MISS',
+    16: 'POFTFPT_TABLE_SYNC_FROM',
+    65534: 'POFTFPT_EXPERIMENTER',
+    65535: 'POFTFPT_EXPERIMENTER_MISS',
 }
 
-# Identifiers from group ofp_table_features_failed_code
+# Identifiers from group pof_table_features_failed_code
 OFPTFFC_BAD_TABLE = 0
 OFPTFFC_BAD_METADATA = 1
 OFPTFFC_EPERM = 5
 
-ofp_table_features_failed_code_map = {
-    0: 'OFPTFFC_BAD_TABLE',
-    1: 'OFPTFFC_BAD_METADATA',
-    5: 'OFPTFFC_EPERM',
+pof_table_features_failed_code_map = {
+    0: 'POFTFFC_BAD_TABLE',
+    1: 'POFTFFC_BAD_METADATA',
+    5: 'POFTFFC_EPERM',
 }
 
 # Identifiers from group pof_table_mod_failed_code
@@ -1256,24 +1269,24 @@ pof_table_mod_failed_code_map = {
     8: 'POFTMFC_TABLE_UNEMPTY',
 }
 
-# Identifiers from group ofp_table_mod_prop_eviction_flag
+# Identifiers from group pof_table_mod_prop_eviction_flag
 OFPTMPEF_OTHER = 1
 OFPTMPEF_IMPORTANCE = 2
 OFPTMPEF_LIFETIME = 4
 
-ofp_table_mod_prop_eviction_flag_map = {
-    1: 'OFPTMPEF_OTHER',
-    2: 'OFPTMPEF_IMPORTANCE',
-    4: 'OFPTMPEF_LIFETIME',
+pof_table_mod_prop_eviction_flag_map = {
+    1: 'POFTMPEF_OTHER',
+    2: 'POFTMPEF_IMPORTANCE',
+    4: 'POFTMPEF_LIFETIME',
 }
 
-# Identifiers from group ofp_table_reason
+# Identifiers from group pof_table_reason
 OFPTR_VACANCY_DOWN = 3
 OFPTR_VACANCY_UP = 4
 
-ofp_table_reason_map = {
-    3: 'OFPTR_VACANCY_DOWN',
-    4: 'OFPTR_VACANCY_UP',
+pof_table_reason_map = {
+    3: 'POFTR_VACANCY_DOWN',
+    4: 'POFTR_VACANCY_UP',
 }
 
 # Identifiers from group pof_type
@@ -1358,12 +1371,12 @@ pof_type_map = {
     102: 'POFT_SLOT_STATUS',
 }
 
-# Identifiers from group ofp_vlan_id
+# Identifiers from group pof_vlan_id
 OFPVID_NONE = 0
 OFPVID_PRESENT = 4096
 
-ofp_vlan_id_map = {
-    0: 'OFPVID_NONE',
-    4096: 'OFPVID_PRESENT',
+pof_vlan_id_map = {
+    0: 'POFVID_NONE',
+    4096: 'POFVID_PRESENT',
 }
 
