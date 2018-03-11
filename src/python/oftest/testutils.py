@@ -433,11 +433,8 @@ def simple_eth_packet(pktlen=60,
 
     if MINSIZE > pktlen:
         pktlen = MINSIZE
-
     pkt = scapy.Ether(dst=eth_dst, src=eth_src, type=eth_type)
-
     pkt = pkt/("0" * (pktlen - len(pkt)))
-
     return pkt
 
 def qinq_tcp_packet(pktlen=100, 
@@ -1598,16 +1595,7 @@ def packet_in_match(msg, data, in_port=None, reason=None):
     @param reason Expected packet_in reason, or None
     """
 
-    if ofp.POF_VERSION <= 2:
-        pkt_in_port = msg.in_port
-    else:
-        oxms = { type(oxm): oxm for oxm in msg.match.oxm_list }
-        if ofp.oxm.in_port in oxms:
-            pkt_in_port = oxms[ofp.oxm.in_port].value
-        else:
-            logging.warn("Missing in_port in packet-in message")
-            pkt_in_port = None
-
+    pkt_in_port = msg.port_id  
     if in_port != None and in_port != pkt_in_port:
         logging.debug("Incorrect packet_in in_port (expected %d, received %d)", in_port, pkt_in_port)
         return False
@@ -1648,12 +1636,9 @@ def verify_packet_in(test, data, in_port, reason, controller=None):
     if controller == None:
         controller = test.controller
 
-    end_time = time.time() + oftest.ofutils.default_timeout
-
     while True:
-        msg, _ = controller.poll(ofp.POFT_PACKET_IN, end_time - time.time())
+        msg, _ = controller.poll(ofp.POFT_PACKET_IN, oftest.ofutils.default_timeout)
         if not msg:
-            # Timeout
             break
         elif packet_in_match(msg, data, in_port, reason):
             # Found a matching message

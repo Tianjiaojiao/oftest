@@ -383,7 +383,7 @@ class bad_request_error_msg(error_msg):
 error_msg.subtypes[1] = bad_request_error_msg
 
 class bad_action_error_msg(error_msg):
-    version = 5
+    version = 4
     type = 1
     err_type = 2
 
@@ -1958,7 +1958,7 @@ class experimenter(message):
 
         obj = experimenter()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 4)
         _length = reader.read("!H")[0]
@@ -2619,7 +2619,7 @@ class flow_removed(message):
     def unpack(reader):
         obj = flow_removed()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 11)
         _length = reader.read("!H")[0]
@@ -2944,7 +2944,7 @@ class packet_out(message):
     def unpack(reader):
         obj = packet_out()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 13)
         _length = reader.read("!H")[0]
@@ -3214,8 +3214,8 @@ class flow_mod(message):
 message.subtypes[15] = flow_mod
 
 class flow_add(flow_mod):
-    version = 5
-    type = 14
+    version = 4
+    type = 15
     _command = 0
 
     def __init__(self, xid=None, match_field_num=None, instruction_num=None, counter_id=None, cookie=None, cookie_mask=None, table_id=None, table_type=None, idle_timeout=None, hard_timeout=None, priority=None, index=None, slotID=None, match=None, instructions=None):
@@ -3417,8 +3417,8 @@ class flow_add(flow_mod):
 flow_mod.subtypes[0] = flow_add
 
 class flow_modify(flow_mod):
-    version = 5
-    type = 14
+    version = 4
+    type = 15
     _command = 1
 
     def __init__(self, xid=None, match_field_num=None, instruction_num=None, counter_id=None, cookie=None, cookie_mask=None, table_id=None, table_type=None, idle_timeout=None, hard_timeout=None, priority=None, index=None, slotID=None, match=None, instructions=None):
@@ -3621,8 +3621,8 @@ flow_mod.subtypes[1] = flow_modify
 
 '''---pofswitch do not implement---
 class flow_modify_strict(flow_mod):
-    version = 5
-    type = 14
+    version = 4
+    type = 15
     _command = 2
 
     def __init__(self, xid=None, cookie=None, cookie_mask=None, table_id=None, idle_timeout=None, hard_timeout=None, priority=None, buffer_id=None, out_port=None, out_group=None, flags=None, importance=None, match=None, instructions=None):
@@ -3712,7 +3712,7 @@ class flow_modify_strict(flow_mod):
     def unpack(reader):
         obj = flow_modify_strict()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 14)
         _length = reader.read("!H")[0]
@@ -3809,8 +3809,8 @@ class flow_modify_strict(flow_mod):
 flow_mod.subtypes[2] = flow_modify_strict
 '''
 class flow_delete(flow_mod):
-    version = 5
-    type = 14
+    version = 4
+    type = 15
     _command = 3
 
     def __init__(self, xid=None, match_field_num=None, instruction_num=None, counter_id=None, cookie=None, cookie_mask=None, table_id=None, table_type=None, idle_timeout=None, hard_timeout=None, priority=None, index=None, slotID=None, match=None, instructions=None):
@@ -4013,8 +4013,8 @@ flow_mod.subtypes[3] = flow_delete
 
 '''---pofswitch do not implement---
 class flow_delete_strict(flow_mod):
-    version = 5
-    type = 14
+    version = 4
+    type = 15
     _command = 4
 
     def __init__(self, xid=None, cookie=None, cookie_mask=None, table_id=None, idle_timeout=None, hard_timeout=None, priority=None, buffer_id=None, out_port=None, out_group=None, flags=None, importance=None, match=None, instructions=None):
@@ -4104,7 +4104,7 @@ class flow_delete_strict(flow_mod):
     def unpack(reader):
         obj = flow_delete_strict()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 14)
         _length = reader.read("!H")[0]
@@ -5386,7 +5386,7 @@ class barrier_request(message):
     def unpack(reader):
         obj = barrier_request()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 20)
         _length = reader.read("!H")[0]
@@ -5442,7 +5442,7 @@ class barrier_reply(message):
     def unpack(reader):
         obj = barrier_reply()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
         assert(_type == 21)
         _length = reader.read("!H")[0]
@@ -5478,8 +5478,8 @@ message.subtypes[22] = barrier_reply
 #-----role request message, pofswitch do not implement---------------------
 '''
 class role_request(message):
-    version = 5
-    type = 24
+    version = 4
+    type = 25
 
     def __init__(self, xid=None, role=None, generation_id=None):
         if xid != None:
@@ -5513,9 +5513,9 @@ class role_request(message):
     def unpack(reader):
         obj = role_request()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
-        assert(_type == 24)
+        assert(_type == 25)
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
@@ -5556,8 +5556,8 @@ message.subtypes[24] = role_request
 #-----role reply message, pofswitch do not implement-----------------------
 '''
 class role_reply(message):
-    version = 5
-    type = 25
+    version = 4
+    type = 26
 
     def __init__(self, xid=None, role=None, generation_id=None):
         if xid != None:
@@ -5591,9 +5591,9 @@ class role_reply(message):
     def unpack(reader):
         obj = role_reply()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
-        assert(_type == 25)
+        assert(_type == 26)
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
@@ -5634,8 +5634,8 @@ message.subtypes[25] = role_reply
 #-----get async request message, pofswitch do not implement----------------
 '''
 class async_get_request(message):
-    version = 5
-    type = 26
+    version = 4
+    type = 27
 
     def __init__(self, xid=None, properties=None):
         if xid != None:
@@ -5663,9 +5663,9 @@ class async_get_request(message):
     def unpack(reader):
         obj = async_get_request()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
-        assert(_type == 26)
+        assert(_type == 27)
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
@@ -5700,8 +5700,8 @@ message.subtypes[26] = async_get_request
 #-----get async reply message, pofswitch do not implement------------------
 '''
 class async_get_reply(message):
-    version = 5
-    type = 27
+    version = 4
+    type = 28
 
     def __init__(self, xid=None, properties=None):
         if xid != None:
@@ -5729,9 +5729,9 @@ class async_get_reply(message):
     def unpack(reader):
         obj = async_get_reply()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
-        assert(_type == 27)
+        assert(_type == 28)
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
@@ -5766,8 +5766,8 @@ message.subtypes[27] = async_get_reply
 #-----set async message, pofswitch do not implement------------------------
 '''
 class async_set(message):
-    version = 5
-    type = 28
+    version = 4
+    type = 29
 
     def __init__(self, xid=None, properties=None):
         if xid != None:
@@ -5795,9 +5795,9 @@ class async_set(message):
     def unpack(reader):
         obj = async_set()
         _version = reader.read("!B")[0]
-        assert(_version == 5)
+        assert(_version == 4)
         _type = reader.read("!B")[0]
-        assert(_type == 28)
+        assert(_type == 29)
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)

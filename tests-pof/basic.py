@@ -67,15 +67,16 @@ class PacketIn(base_tests.SimpleDataPlane):
 
         for of_port in config["port_map"].keys():
             for pkt, pt in [
-               (simple_tcp_packet(), "simple TCP packet"),
-               (simple_tcp_packet(dl_vlan_enable=True,vlan_vid=vid,pktlen=108), 
-                "simple tagged TCP packet"),
-               (simple_eth_packet(), "simple Ethernet packet"),
-               (simple_eth_packet(pktlen=40), "tiny Ethernet packet")]:
+                (simple_tcp_packet(), "simple TCP packet"),
+                #(simple_tcp_packet(dl_vlan_enable=True,vlan_vid=vid,pktlen=108),
+                #"simple tagged TCP packet"),
+                (simple_eth_packet(), "simple Ethernet packet"),
+                (simple_eth_packet(pktlen=40), "tiny Ethernet packet")]:
 
-               logging.info("PKT IN test with %s, port %s" % (pt, of_port))
-               self.dataplane.send(of_port, str(pkt))
-               verify_packet_in(self, str(pkt), of_port, ofp.POFR_NO_MATCH)
+                logging.info("PKT IN test with %s, port %s" % (pt, of_port))
+                self.dataplane.send(of_port, str(pkt))
+                verify_packet_in(self, str(pkt), of_port, ofp.POFR_NO_MATCH)
+
 @group('smoke')
 class PacketInBroadcastCheck(base_tests.SimpleDataPlane):
     """
@@ -90,8 +91,8 @@ class PacketInBroadcastCheck(base_tests.SimpleDataPlane):
         # Need at least two ports
         self.assertTrue(len(config["port_map"]) > 1, "Too few ports for test")
 
-        delete_all_flows(self.controller)
-        do_barrier(self.controller)
+        #delete_all_flows(self.controller)
+        #do_barrier(self.controller)
 
         of_ports = config["port_map"].keys()
         d_port = of_ports[0]

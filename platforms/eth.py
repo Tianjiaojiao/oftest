@@ -19,10 +19,10 @@ def platform_config_update(config):
     # Default to a veth configuration compatible with the reference switch
     if not port_map:
         port_map = {
-            1: 'veth1',
-            2: 'veth3',
-            3: 'veth5',
-            4: 'veth7',
+            15: 'veth1',
+            17: 'veth3',
+            19: 'veth5',
+            21: 'veth7',
         }
 
     config['port_map'] = port_map
