@@ -559,7 +559,7 @@ POFFMFC_BAD_TABLE_TYPE = 10
 POFFMFC_BAD_ENTRY_ID = 11
 POFFMFC_BAD_COUNTER_ID = 12
 
-pof_group_flow_mod_failed_code_map = {
+pof_flow_mod_failed_code_map = {
     0: 'POFFMFC_UNKNOWN',
     1: 'POFFMFC_TABLE_FULL',
     2: 'POFFMFC_BAD_TABLE_ID',

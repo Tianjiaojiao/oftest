@@ -22,30 +22,29 @@ class BaseHandshake(unittest.TestCase):
     Base handshake case to set up controller, but do not send hello.
     """
 
-    def controllerSetup(self, host, port):
-        con = controller.Controller(host=host,port=port)
-
+    def controllerSetup(self):
         # clean_shutdown should be set to False to force quit app
-        self.clean_shutdown = True
+        #self.clean_shutdown = True
         # disable initial hello so hello is under control of test
-        con.initial_hello = False
+        self.controller.initial_hello = False
 
-        con.start()
-        self.controllers.append(con)
+        #self.controller.start()
+        #self.controllers.append(con)
 
     def setUp(self):
         logging.info("** START TEST CASE " + str(self))
 
-        self.controllers = []
+        self.controller = controller.Controller(host=config["controller_host"],
+                                                port=config["controller_port"])
         self.default_timeout = test_param_get('default_timeout',
                                               default=2)
-
+        self.controller.start()
     def tearDown(self):
         logging.info("** END TEST CASE " + str(self))
-        for con in self.controllers:
-            con.shutdown()
-            if self.clean_shutdown:
-                con.join()
+        #for con in self.controllers:
+        self.controller.shutdown()
+        #if self.clean_shutdown:
+        self.controller.join()
 
     def runTest(self):
         # do nothing in the base case
@@ -62,16 +61,15 @@ class HandshakeNoHello(BaseHandshake):
     and wait for disconnect.
     """
     def runTest(self):
-        self.controllerSetup(config["controller_host"],
-                             config["controller_port"])
-        self.controllers[0].connect(self.default_timeout)
+        self.controllerSetup()
+        self.controller.connect(self.default_timeout)
 
         logging.info("TCP Connected " + 
-                     str(self.controllers[0].switch_addr))
+                     str(self.controller.switch_addr))
         logging.info("Hello not sent, waiting for timeout")
 
         # wait for controller to die
-        self.assertTrue(self.controllers[0].wait_disconnected(timeout=10),
+        self.assertTrue(self.controller.wait_disconnected(timeout=10),
                         "Not notified of controller disconnect")
 
 class HandshakeNoFeaturesRequest(BaseHandshake):
@@ -80,248 +78,127 @@ class HandshakeNoFeaturesRequest(BaseHandshake):
     and wait for disconnect.
     """
     def runTest(self):
-        self.controllerSetup(config["controller_host"],
-                             config["controller_port"])
-        self.controllers[0].connect(self.default_timeout)
+        self.controllerSetup()
+        self.controller.connect(self.default_timeout)
 
         logging.info("TCP Connected " + 
-                     str(self.controllers[0].switch_addr))
+                     str(self.controller.switch_addr))
         logging.info("Sending hello")
-        self.controllers[0].message_send(ofp.message.hello())
+        self.controller.message_send(ofp.message.hello())
 
         logging.info("Features request not sent, waiting for timeout")
 
         # wait for controller to die
-        self.assertTrue(self.controllers[0].wait_disconnected(timeout=10),
+        self.assertTrue(self.controller.wait_disconnected(timeout=10),
                         "Not notified of controller disconnect")
 
-class CompleteHandshake(BaseHandshake):
+class HandshakeNoSetConfig(BaseHandshake):
     """
-    Set up multiple controllers and complete handshake, but otherwise do nothing.
+    TCP connect to switch, send hello and features request, but do not send set config,
+    and wait for disconnect.
     """
-
-    def buildControllerList(self):                                             
-        # controller_list is a list of IP:port tuples
-        con_list = test_param_get('controller_list')
-        if con_list is not None:
-            self.controller_list = []
-            for controller in con_list:
-                ip,portstr = controller.split(':')
-                try:
-                    port = int(portstr)
-                except:
-                    self.assertTrue(0, "failure converting port " +
-                                    portstr + " to integer")
-                self.controller_list.append( (ip, int(port)) )
-        else:
-            self.controller_list = [(config["controller_host"],
-                                     config["controller_port"])]
-
-    def __init__(self, keep_alive=True, cxn_cycles=5,
-                 controller_timeout=-1, hello_timeout=5, 
-                 features_req_timeout=5, disconnected_timeout=3,
-                 report_pkts=False):
-        BaseHandshake.__init__(self)
-        self.buildControllerList()
-        self.keep_alive = keep_alive
-        self.cxn_cycles = test_param_get('cxn_cycles') \
-            or cxn_cycles
-        self.controller_timeout = test_param_get('controller_timeout') \
-            or controller_timeout
-        self.hello_timeout = test_param_get('hello_timeout') \
-            or hello_timeout
-        self.features_req_timeout = test_param_get('features_req_timeout') \
-            or features_req_timeout
-        self.disconnected_timeout = test_param_get('disconnected_timeout') \
-            or disconnected_timeout
-        self.report_pkts = report_pkts
-
-    # These functions provide per-tick processing
-    def periodic_task_init(self, tick_time):
-        """
-        Assumes tick_time is in seconds, usually 1/10 of a sec
-        """
-        if not self.report_pkts:
-            return
-        self.start_time = time.time()
-        self.last_report = self.start_time
-        self.pkt_in_count = 0 # Total packet in count
-        self.periodic_pkt_in_count = 0 # Packet-ins this cycle
-
-    def periodic_task_tick(self, con):
-        """
-        Process one tick.  Currently this just counts pkt-in msgs
-        """
-        if not self.report_pkts:
-            return
-        if con.cstate != 4:
-            return
-
-        # Gather packets from control cxn
-        current_time = time.time()
-        new_pkts = con.packet_in_count - self.pkt_in_count
-        self.pkt_in_count = con.packet_in_count
-        self.periodic_pkt_in_count += new_pkts
-        con.clear_queue()
-
-        # Report every second or so
-        if (current_time - self.last_report >= 1):
-            if self.periodic_pkt_in_count:
-                print "%7.2f: pkt/sec last period:  %6d.  Total %10d." % (
-                    current_time - self.start_time,
-                    self.periodic_pkt_in_count/(current_time - self.last_report),
-                    self.pkt_in_count)
-            self.last_report = current_time
-            self.periodic_pkt_in_count = 0
-
-    def periodic_task_done(self):
-        if not self.report_pkts:
-            return
-        print "Received %d pkt-ins over %d seconds" % (
-            self.pkt_in_count, time.time() - self.start_time)
-        
     def runTest(self):
-        for conspec in self.controller_list:
-            self.controllerSetup(conspec[0], conspec[1])
-        for i in range(len(self.controller_list)):
-            self.controllers[i].cstate = 0
-            self.controllers[i].keep_alive = self.keep_alive
-            self.controllers[i].saved_switch_addr = None
-        tick = 0.1  # time period in seconds at which controllers are handled
-        self.periodic_task_init(tick)
+        self.controllerSetup()
+        self.controller.connect(self.default_timeout)
 
-        disconnected_count = 0
-        cycle = 0
-        while True:
-            states = []
-            for con in self.controllers:
-                condesc = con.host + ":" + str(con.port) + ": "
-                logging.debug("Checking " + condesc)
+        logging.info("TCP Connected " + 
+                     str(self.controller.switch_addr))
+        logging.info("Sending hello")
+        self.controller.message_send(ofp.message.hello())
 
-                if con.switch_socket:
-                    if con.switch_addr != con.saved_switch_addr:
-                        con.saved_switch_addr = con.switch_addr
-                        con.cstate = 0
+        logging.info("Send features request, waiting for features reply")
+        request = ofp.message.features_request()
+        response, pkt = self.controller.transact(request)
+        self.assertTrue(response is not None,
+                        "Did not get features reply")
+        self.assertEqual(response.type, ofp.POFT_FEATURES_REPLY,
+                         'response is not features reply')
+        self.assertEqual(request.xid, response.xid,
+                         'response xid != request xid')
+ 
+        logging.info("Set config not sent, waiting for timeout")
+        # wait for controller to die
+        self.assertTrue(self.controller.wait_disconnected(timeout=10),
+                        "Not notified of controller disconnect")
 
-                    if con.cstate == 0:
-                        logging.info(condesc + "Sending hello to " +
-                                     str(con.switch_addr))
-                        con.message_send(ofp.message.hello())
-                        con.cstate = 1
-                        con.count = 0
-                    elif con.cstate == 1:
-                        reply, pkt = con.poll(exp_msg=ofp.POFT_HELLO,
-                                              timeout=0)
-                        if reply is not None:
-                            logging.info(condesc + 
-                                         "Hello received from " +
-                                         str(con.switch_addr))
-                            con.cstate = 2
-                        else:
-                            con.count = con.count + 1
-                            # fall back to previous state on timeout
-                            if con.count >= self.hello_timeout/tick:
-                                logging.info(condesc + 
-                                             "Timeout hello from " +
-                                             str(con.switch_addr))
-                                con.cstate = 0
-                    elif con.cstate == 2:
-                        logging.info(condesc + "Sending features request to " +
-                                     str(con.switch_addr))
-                        con.message_send(ofp.message.features_request())
-                        con.cstate = 3
-                        con.count = 0
-                    elif con.cstate == 3:
-                        reply, pkt = con.poll(exp_msg=ofp.POFT_FEATURES_REPLY,
-                                              timeout=0)
-                        if reply is not None:
-                            logging.info(condesc + 
-                                         "Features reply received from " +
-                                         str(con.switch_addr))
-                            con.cstate = 4
-                            con.count = 0
-                            cycle = cycle + 1
-                            logging.info("Cycle " + str(cycle))
-                        else:
-                            con.count = con.count + 1
-                            # fall back to previous state on timeout
-                            if con.count >= self.features_req_timeout/tick:
-                                logging.info(condesc +
-                                             "Timeout features request from " +
-                                             str(con.switch_addr))
-                                con.cstate = 2
-                    elif con.cstate == 4:
-                        if (self.controller_timeout < 0 or
-                            con.count < self.controller_timeout/tick):
-                            logging.debug(condesc +
-                                          "Maintaining connection to " +
-                                          str(con.switch_addr))
-                            con.count = con.count + 1
-                        else:
-                            logging.info(condesc + 
-                                         "Disconnecting from " +
-                                         str(con.switch_addr))
-                            con.disconnect()
-                            con.cstate = 0
-                else:
-                    con.cstate = 0
-            
-                states.append(con.cstate)
-                self.periodic_task_tick(con)
 
-            logging.debug("Cycle " + str(cycle) +
-                          ", states " + str(states) +
-                          ", disconnected_count " + str(disconnected_count))
-            if 4 in states:
-                disconnected_count = 0
-            else:
-                disconnected_count = disconnected_count + 1
-            if cycle != 0:
-                self.assertTrue(disconnected_count < self.disconnected_timeout/tick,
-                                "Timeout expired connecting to controller")
-            else:
-               # on first cycle, allow more time for initial connect
-               self.assertTrue(disconnected_count < 2*self.disconnected_timeout/tick,
-                               "Timeout expired connecting to controller on init")
-
-            if cycle > self.cxn_cycles:
-               break
-            time.sleep(tick)
-        self.periodic_task_done()
-
-class HandshakeAndKeepalive(CompleteHandshake):
+class HandshakeNoGetConfigRequest(BaseHandshake):
     """
-    Complete handshake and respond to echo request, but otherwise do nothing.
-    Good for manual testing.
+    TCP connect to switch, send hello, features request, and set config, but do not send get config request request,
+    and wait for disconnect.
     """
+    def runTest(self):
+        self.controllerSetup()
+        self.controller.connect(self.default_timeout)
 
-    def __init__(self):
-       CompleteHandshake.__init__(self, keep_alive=True)
+        logging.info("TCP Connected " + 
+                     str(self.controller.switch_addr))
+        logging.info("Sending hello")
+        self.controller.message_send(ofp.message.hello())
 
-class MonitorPacketIn(CompleteHandshake):
+        logging.info("Send features request, waiting for features reply")
+        request = ofp.message.features_request()
+        response, pkt = self.controller.transact(request)
+        self.assertTrue(response is not None,
+                        "Did not get features reply")
+        self.assertEqual(response.type, ofp.POFT_FEATURES_REPLY,
+                         'response is not features reply')
+        self.assertEqual(request.xid, response.xid,
+                         'response xid != request xid')
+
+        logging.info("Send set config")
+        request = ofp.message.set_config()
+        temp = self.controller.message_send(request)
+
+        logging.info("Get config request not sent, waiting for timeout")
+
+        # wait for controller to die
+        self.assertTrue(self.controller.wait_disconnected(timeout=10),
+                        "Not notified of controller disconnect")
+
+class CompleteHandshakeAndKeepAlive(BaseHandshake):
     """
-    Complete handshake and respond to echo request.  As packet-in messages
-    arrive, report the count and pkts/second
+    Set up controller and complete handshake, keep alive.
     """
+    def runTest(self):
+        self.controllerSetup()
+        self.controller.connect(self.default_timeout)
 
-    def __init__(self):
-       CompleteHandshake.__init__(self, keep_alive=True, report_pkts=True)
+        logging.info("TCP Connected " + 
+                     str(self.controller.switch_addr))
+        logging.info("Sending hello")
+        self.controller.message_send(ofp.message.hello())
 
-#@disabled
-class HandshakeNoEcho(CompleteHandshake):
-    """
-    Complete handshake, but otherwise do nothing, and do not respond to echo.
-    """
+        logging.info("Send features request, waiting for features reply")
+        request = ofp.message.features_request()
+        response, pkt = self.controller.transact(request)
+        self.assertTrue(response is not None,
+                        "Did not get features reply")
+        self.assertEqual(response.type, ofp.POFT_FEATURES_REPLY,
+                         'response is not features reply')
+        self.assertEqual(request.xid, response.xid,
+                         'response xid != request xid')
 
-    def __init__(self):
-       CompleteHandshake.__init__(self, keep_alive=False)
+        logging.info("Send set config")
+        request = ofp.message.set_config()
+        temp = self.controller.message_send(request)
 
-#@disabled
-class HandshakeAndDrop(CompleteHandshake):
-    """
-    Complete handshake, but otherwise do nothing, and drop connection after a while.
-    """
+        logging.info("Send get config request, waiting for get config reply")
+        request = ofp.message.get_config_request()
+        response, pkt = self.controller.transact(request)
+        self.assertTrue(response is not None,
+                        "Did not get get config reply")
+        self.assertEqual(response.type, ofp.POFT_GET_CONFIG_REPLY,
+                         'response is not get config reply')
+        self.assertEqual(request.xid, response.xid,
+                         'response xid != request xid')
 
-    def __init__(self):
-       CompleteHandshake.__init__(self, keep_alive=True, controller_timeout=10)
-
+        logging.info("Send echo request, to verify the liveness of a controller-switch connection")
+        request = ofp.message.echo_request()
+        response, pkt = self.controller.transact(request)
+        self.assertTrue(response is not None,
+                        "Did not get get echo reply")
+        self.assertEqual(response.type, ofp.POFT_ECHO_REPLY,
+                         'response is not echo reply')
+        self.assertEqual(request.xid, response.xid,
+                         'response xid != request xid')
