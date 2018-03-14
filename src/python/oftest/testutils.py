@@ -24,6 +24,16 @@ TCP_PROTOCOL = 0x6
 UDP_PROTOCOL = 0x11
 
 MINSIZE = 0
+#*~*
+def add_first_table(ctrl):
+
+    msg = ofp.message.table_add()
+    msg.table_id = 0
+    msg.table_type = 0
+    msg.table_name = "first flow table"
+    msg.size = 2 #the table could add two entry
+    ctrl.message_send(msg)
+    return 0
 
 def delete_all_flows(ctrl, send_barrier=True):
     """
@@ -63,7 +73,7 @@ def required_wildcards(parent):
                 | ofp.POFFW_NW_PROTO | ofp.POFFW_TP_SRC | ofp.POFFW_TP_DST)
     else:
         return 0
-
+#*~*
 def simple_tcp_packet(pktlen=100, 
                       eth_dst='00:01:02:03:04:05',
                       eth_src='00:06:07:08:09:0a',
@@ -425,7 +435,7 @@ def simple_arp_packet(pktlen=60,
     pkt = pkt/("\0" * (pktlen - len(pkt)))
 
     return pkt
-
+#*~*
 def simple_eth_packet(pktlen=60,
                       eth_dst='00:01:02:03:04:05',
                       eth_src='00:06:07:08:09:0a',
@@ -1213,19 +1223,6 @@ def pkt_action_setup(parent, start_field_vals={}, mod_field_vals={},
 
     return (ingress_pkt, expected_pkt, new_actions)
 
-# Generate a simple "drop" flow mod
-# If in_band is true, then only drop from first test port
-def flow_mod_gen(port_map, in_band):
-    request = ofp.message.flow_add()
-    #request.match.wildcards = ofp.POFFW_ALL
-    #if in_band:
-    #    request.match.wildcards = ofp.POFFW_ALL - ofp.POFFW_IN_PORT
-    #    for of_port, ifname in port_map.items(): # Grab first port
-    #        break
-    #    request.match.in_port = of_port
-    #request.buffer_id = 0xffffffff
-    return request
-
 def skip_message_emit(parent, s):
     """
     Print out a 'skipped' message to stderr
@@ -1580,7 +1577,7 @@ def verify_queue_stats(test, port_no, queue_id,
     if bytes != None:
         test.assertTrue(byte_diff >= bytes and byte_diff <= bytes*1.1,
                         "Queue byte counter not updated properly (expected increase of %d, got increase of %d)" % (bytes, byte_diff))
-
+#*~*
 def packet_in_match(msg, data, in_port=None, reason=None):
     """
     Check whether the packet_in message 'msg' has fields matching 'data',
@@ -1618,7 +1615,7 @@ def packet_in_match(msg, data, in_port=None, reason=None):
         return False
 
     return True
-
+#*~*
 def verify_packet_in(test, data, in_port, reason, controller=None):
     """
     Assert that the controller receives a packet_in message matching data 'data'

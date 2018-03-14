@@ -4710,11 +4710,15 @@ class port_mod(message):
     version = 4
     type = 17
 
-    def __init__(self, xid=None, desc=None):
+    def __init__(self, xid=None, reason=None, desc=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if reason != None:
+            self.reason = reason
+        else:
+            self.reason = 0
         if desc != None:
             self.desc = desc
         else:
@@ -4727,6 +4731,8 @@ class port_mod(message):
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
+        packed.append(struct.pack("!B", self.reason))
+        packed.append('\x00' * 7)
         packed.append(self.desc.pack())
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -4743,12 +4749,15 @@ class port_mod(message):
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
+        obj.reason = reaser.read("!B")[0]
+        reader.skip(7)
         obj.desc = ofp.port_desc.unpack(reader)
         return obj
 
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.reason != other.reason: return False
         if self.desc != other.desc: return False
         return True
 
@@ -4762,6 +4771,9 @@ class port_mod(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("reason = ");
+                q.text("%#x" % self.reason)
                 q.text(","); q.breakable()
                 q.text("desc = ");
                 q.pp(self.desc)

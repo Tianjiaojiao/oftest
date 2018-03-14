@@ -105,80 +105,8 @@ class PacketInBroadcastCheck(base_tests.SimpleDataPlane):
         self.assertTrue(pkt_in is None,
                         'BCast packet received on port ' + str(of_port))
 
-'''
 #pofswitch do not support packet_out
-@group('smoke')
-class PacketOut(base_tests.SimpleDataPlane):
-    """
-    Test packet out function
 
-    Send packet out message to controller for each dataplane port and
-    verify the packet appears on the appropriate dataplane port
-    """
-    def runTest(self):
-        # Construct packet to send to dataplane
-        # Send packet to dataplane
-        # Poll controller with expect message type packet in
-
-        delete_all_flows(self.controller)
-
-        # These will get put into function
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-        for dp_port in of_ports:
-            for outpkt, opt in [
-               (simple_tcp_packet(), "simple TCP packet"),
-               (simple_eth_packet(), "simple Ethernet packet"),
-               (simple_eth_packet(pktlen=40), "tiny Ethernet packet")]:
-
-               logging.info("PKT OUT test with %s, port %s" % (opt, dp_port))
-               msg = ofp.message.packet_out(in_port=ofp.POFP_NONE,
-                                        data=str(outpkt),
-                                        actions=[ofp.action.output(port=dp_port)],
-                                        buffer_id=0xffffffff)
-
-               logging.info("PacketOut to: " + str(dp_port))
-               self.controller.message_send(msg)
-
-               verify_packets(self, outpkt, [dp_port])
-
-class PacketOutMC(base_tests.SimpleDataPlane):
-    """
-    Test packet out to multiple output ports
-
-    Send packet out message to controller for 1 to N dataplane ports and
-    verify the packet appears on the appropriate ports
-    """
-    def runTest(self):
-        # Construct packet to send to dataplane
-        # Send packet to dataplane
-        # Poll controller with expect message type packet in
-
-        delete_all_flows(self.controller)
-
-        # These will get put into function
-        of_ports = config["port_map"].keys()
-        random.shuffle(of_ports)
-        for num_ports in range(1,len(of_ports)+1):
-            for outpkt, opt in [
-               (simple_tcp_packet(), "simple TCP packet"),
-               (simple_eth_packet(), "simple Ethernet packet"),
-               (simple_eth_packet(pktlen=40), "tiny Ethernet packet")]:
-
-               dp_ports = of_ports[0:num_ports]
-               logging.info("PKT OUT test with " + opt +
-                                 ", ports " + str(dp_ports))
-               actions = [ofp.action.output(port=port) for port in dp_ports]
-               msg = ofp.message.packet_out(in_port=ofp.POFP_NONE,
-                                        data=str(outpkt),
-                                        actions=actions,
-                                        buffer_id=0xffffffff)
-
-               logging.info("PacketOut to: " + str(dp_ports))
-               self.controller.message_send(msg)
-
-               verify_packets(self, outpkt, dp_ports)
-'''
 @group('smoke')
 class FlowMod(base_tests.SimpleProtocol):
     """
@@ -189,91 +117,43 @@ class FlowMod(base_tests.SimpleProtocol):
 
     def runTest(self):
         logging.info("Running " + str(self))
-        request = flow_mod_gen(config["port_map"], True)
-        self.controller.message_send(request)
-'''
-@group('smoke')
-class PortConfigMod(base_tests.SimpleProtocol):
-    """
-    Modify a bit in port config and verify changed
 
-    Get the switch configuration, modify the port configuration
-    and write it back; get the config again and verify changed.
-    Then set it back to the way it was.
-    can only send port mod
-    """
+        add_first_table(self.controller)
+
+        request = ofp.message.flow_add()
+        self.controller.message_send(request)
+
+        # poll for error message
+        (response, raw) = self.controller.poll(ofp.POFT_ERROR, timeout=3)
+        if response:
+            if response.err_type == ofp.POFET_FLOW_MOD_FAILED:
+                logging.info("Received error message with flow mod failed code")
+                self.assertTrue(False,"flow mod failed and received error msg witch flow_mod_failed")
+            else:
+                self.assertTrue(False,"flow mod failed and did not receive correct error msg")
+
+@group('smoke')
+class PortMod(base_tests.SimpleProtocol):
 
     def runTest(self):
         logging.info("Running " + str(self))
         for of_port, ifname in config["port_map"].items(): # Grab first port
             break
 
-        (hw_addr, port_config, advert) = \
-            port_config_get(self.controller, of_port)
-        self.assertTrue(port_config is not None, "Did not get port config")
-
-        logging.debug("No flood bit port " + str(of_port) + " is now " + 
-                           str(port_config & ofp.POFPC_NO_FLOOD))
-
-        rv = port_config_set(self.controller, of_port,
-                             port_config ^ ofp.POFPC_NO_FLOOD, ofp.POFPC_NO_FLOOD)
-        self.assertTrue(rv != -1, "Error sending port mod")
-        do_barrier(self.controller)
-
-        # Verify change took place with same feature request
-        (hw_addr, port_config2, advert) = \
-            port_config_get(self.controller, of_port)
-        logging.debug("No flood bit port " + str(of_port) + " is now " + 
-                           str(port_config2 & ofp.POFPC_NO_FLOOD))
-        self.assertTrue(port_config2 is not None, "Did not get port config2")
-        self.assertTrue(port_config2 & ofp.POFPC_NO_FLOOD !=
-                        port_config & ofp.POPPC_NO_FLOOD,
-                        "Bit change did not take")
-        # Set it back
-        rv = port_config_set(self.controller, of_port, port_config,
-                             ofp.POFPC_NO_FLOOD)
-        self.assertTrue(rv != -1, "Error sending port mod")
-        do_barrier(self.controller)
-
-@group('smoke')
-class PortConfigModErr(base_tests.SimpleProtocol):
-    """
-    Modify a bit in port config on an invalid port and verify
-    error message is received.
-    """
-
-    def runTest(self):
-        logging.info("Running " + str(self))
-
-        # pick a random bad port number
-        bad_port = random.randint(1, ofp.POFP_MAX)
-        count = 0
-        while (count < 50) and (bad_port in config["port_map"].keys()):
-            bad_port = random.randint(1, ofp.POFP_MAX)
-            count = count + 1
-        self.assertTrue(count < 50, "Error selecting bad port")
-        logging.info("Select " + str(bad_port) + " as invalid port")
-
-        rv = port_config_set(self.controller, bad_port,
-                             ofp.POFPC_NO_FLOOD, ofp.POFPC_NO_FLOOD)
-        self.assertTrue(rv != -1, "Error sending port mod")
+        mod = ofp.message.port_mod()
+        mod.desc.port_no = of_port
+        self.controller.message_send(mod)
 
         # poll for error message
-        while True:
-            (response, raw) = self.controller.poll(ofp.POFT_ERROR)
-            if not response:  # Timeout
-                break
-            if response.code == ofp.POFPMFC_BAD_PORT:
-                logging.info("Received error message with POFPMFC_BAD_PORT code")
-                break
-            if not config["relax"]:  # Only one attempt to match
-                break
-            count += 1
-            if count > 10:   # Too many tries
-                break
+        (response, raw) = self.controller.poll(ofp.POFT_ERROR, timeout=3)
+        if response:
+            if response.err_type == ofp.POFET_PORT_MOD_FAILED:
+                logging.info("Received error message with port mod failed code")
+                self.assertTrue(False,"port mod failed and received error msg witch port_mod_failed")
+            else:
+                self.assertTrue(False,"port mod failed and did not receive correct error msg")
 
-        self.assertTrue(response is not None, 'Did not receive error message')
-'''
+
 @group('smoke')
 class BadMessage(base_tests.SimpleProtocol):
     """
@@ -296,46 +176,30 @@ class BadMessage(base_tests.SimpleProtocol):
                         "reply error code is not bad type")
 
 @group('smoke')
-@version('1.1+')
-class TableModConfig(base_tests.SimpleProtocol):
+class TableMod(base_tests.SimpleProtocol):
     """
-    Simple table modification
+    Simple table mod (add)
 
-    Mostly to make sure the switch correctly responds to these messages.
-    More complicated tests in the multi-tables.py tests
     """
     def runTest(self):
-        # First table should always exist
-        table_id = 0
 
-        def get_table_config():
-            request = ofp.message.table_stats_request()
-            response, _ = self.controller.transact(request)
-            try:
-                table_stats = [x for x in response.entries if x.table_id == table_id][0]
-            except IndexError:
-                raise AssertionError("table id %d not found" % table_id)
-            return table_stats.config
+        time.sleep(1)
 
-        # Get current configuration
-        orig_table_config = get_table_config()
+        logging.info("Running "+ str(self))
 
-        # Change the configuration
-        if orig_table_config == ofp.POFTC_TABLE_MISS_CONTROLLER:
-            new_table_config = ofp.POFTC_TABLE_MISS_DROP
-        else:
-            new_table_config = ofp.POFTC_TABLE_MISS_CONTROLLER
-        request = ofp.message.table_mod(table_id=table_id, config=new_table_config)
-        self.controller.message_send(request)
-        self.controller.transact(ofp.message.barrier_request())
+        # Add a flow table
+        add_first_table(self.controller)
 
-        # Check the configuration took
-        self.assertEqual(get_table_config(), new_table_config)
+        logging.info("Adding a flow table")
 
-        # Change the configuration back
-        request = ofp.message.table_mod(table_id=table_id, config=orig_table_config)
-        self.controller.message_send(request)
-        self.controller.transact(ofp.message.barrier_request())
+        # poll for error message
+        (response, raw) = self.controller.poll(ofp.POFT_ERROR, timeout=3)
+        if response:
+            if response.err_type == ofp.POFET_TABLE_MOD_FAILED:
+                logging.info("Received error message with table mod failed code")
+                self.assertTrue(False,"table mod failed and received error msg witch table_mod_failed")
+            else:
+                self.assertTrue(False,"table mod failed and did not receive correct error msg")
 
 if __name__ == "__main__":
     print "Please run through oft script:  ./oft --test_spec=basic"
