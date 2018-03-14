@@ -211,9 +211,9 @@ class hello_failed_error_msg(error_msg):
     type = 1
     err_type = 0
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotId=None,  err_str=None):
         if xid != None:
-            self.xid = xid
+             self.xid = xid
         else:
             self.xid = None
         if code != None:
@@ -224,6 +224,10 @@ class hello_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -239,6 +243,8 @@ class hello_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -259,6 +265,8 @@ class hello_failed_error_msg(error_msg):
         assert(_err_type == 0)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -267,6 +275,7 @@ class hello_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -287,6 +296,9 @@ class hello_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -299,7 +311,7 @@ class bad_request_error_msg(error_msg):
     type = 1
     err_type = 1
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -312,6 +324,10 @@ class bad_request_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -327,6 +343,8 @@ class bad_request_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -347,6 +365,8 @@ class bad_request_error_msg(error_msg):
         assert(_err_type == 1)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -355,6 +375,7 @@ class bad_request_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -375,6 +396,9 @@ class bad_request_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -387,7 +411,7 @@ class bad_action_error_msg(error_msg):
     type = 1
     err_type = 2
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -400,6 +424,10 @@ class bad_action_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -415,6 +443,8 @@ class bad_action_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -435,6 +465,8 @@ class bad_action_error_msg(error_msg):
         assert(_err_type == 2)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -443,6 +475,7 @@ class bad_action_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -464,6 +497,9 @@ class bad_action_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -476,7 +512,7 @@ class bad_instruction_error_msg(error_msg):
     type = 1
     err_type = 3
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -489,6 +525,10 @@ class bad_instruction_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -504,6 +544,8 @@ class bad_instruction_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -524,6 +566,8 @@ class bad_instruction_error_msg(error_msg):
         assert(_err_type == 3)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -532,6 +576,7 @@ class bad_instruction_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -552,6 +597,9 @@ class bad_instruction_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -564,7 +612,7 @@ class bad_match_error_msg(error_msg):
     type = 1
     err_type = 4
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -577,6 +625,10 @@ class bad_match_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -592,6 +644,8 @@ class bad_match_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -612,6 +666,8 @@ class bad_match_error_msg(error_msg):
         assert(_err_type == 4)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -620,6 +676,7 @@ class bad_match_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -640,6 +697,9 @@ class bad_match_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -652,7 +712,7 @@ class flow_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 5
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -665,6 +725,10 @@ class flow_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -680,6 +744,8 @@ class flow_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -700,6 +766,8 @@ class flow_mod_failed_error_msg(error_msg):
         assert(_err_type == 5)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -708,6 +776,7 @@ class flow_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -728,6 +797,9 @@ class flow_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -740,7 +812,7 @@ class group_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 6
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -753,6 +825,10 @@ class group_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -768,6 +844,8 @@ class group_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -788,6 +866,8 @@ class group_mod_failed_error_msg(error_msg):
         assert(_err_type == 6)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -796,6 +876,7 @@ class group_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -816,6 +897,9 @@ class group_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -828,7 +912,7 @@ class port_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 7
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -841,6 +925,10 @@ class port_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -856,6 +944,8 @@ class port_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -876,6 +966,8 @@ class port_mod_failed_error_msg(error_msg):
         assert(_err_type == 7)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -884,6 +976,7 @@ class port_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -904,6 +997,9 @@ class port_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -916,7 +1012,7 @@ class table_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 8
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -929,6 +1025,10 @@ class table_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -944,6 +1044,8 @@ class table_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -964,6 +1066,8 @@ class table_mod_failed_error_msg(error_msg):
         assert(_err_type == 8)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -972,6 +1076,7 @@ class table_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -992,6 +1097,9 @@ class table_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
 
@@ -1005,7 +1113,7 @@ class queue_op_failed_error_msg(error_msg):
     type = 1
     err_type = 9
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1018,6 +1126,10 @@ class queue_op_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1033,6 +1145,8 @@ class queue_op_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1053,6 +1167,8 @@ class queue_op_failed_error_msg(error_msg):
         assert(_err_type == 9)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1061,6 +1177,7 @@ class queue_op_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1081,6 +1198,9 @@ class queue_op_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1093,7 +1213,7 @@ class switch_config_failed_error_msg(error_msg):
     type = 1
     err_type = 10
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1106,6 +1226,10 @@ class switch_config_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1121,6 +1245,8 @@ class switch_config_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1141,6 +1267,8 @@ class switch_config_failed_error_msg(error_msg):
         assert(_err_type == 10)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1149,6 +1277,7 @@ class switch_config_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1169,6 +1298,9 @@ class switch_config_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1181,7 +1313,7 @@ class role_request_failed_error_msg(error_msg):
     type = 1
     err_type = 11
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1194,6 +1326,10 @@ class role_request_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1209,6 +1345,8 @@ class role_request_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1229,6 +1367,8 @@ class role_request_failed_error_msg(error_msg):
         assert(_err_type == 11)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1237,6 +1377,7 @@ class role_request_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1257,6 +1398,9 @@ class role_request_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1269,7 +1413,7 @@ class meter_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 12
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1282,6 +1426,10 @@ class meter_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1297,6 +1445,8 @@ class meter_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1317,6 +1467,8 @@ class meter_mod_failed_error_msg(error_msg):
         assert(_err_type == 12)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1325,6 +1477,7 @@ class meter_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1345,6 +1498,9 @@ class meter_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1357,7 +1513,7 @@ class table_features_failed_error_msg(error_msg):
     type = 1
     err_type = 13
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1370,6 +1526,10 @@ class table_features_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1385,6 +1545,8 @@ class table_features_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1405,6 +1567,8 @@ class table_features_failed_error_msg(error_msg):
         assert(_err_type == 13)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1413,6 +1577,7 @@ class table_features_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1433,6 +1598,9 @@ class table_features_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1445,7 +1613,7 @@ class software_failed_error_msg(error_msg):
     type = 1
     err_type = 14
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1458,6 +1626,10 @@ class software_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1473,6 +1645,8 @@ class software_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1493,6 +1667,8 @@ class software_failed_error_msg(error_msg):
         assert(_err_type == 14)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1501,6 +1677,7 @@ class software_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1521,6 +1698,9 @@ class software_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
 
@@ -1534,7 +1714,7 @@ class counter_mod_failed_error_msg(error_msg):
     type = 1
     err_type = 15
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1547,6 +1727,10 @@ class counter_mod_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1562,6 +1746,8 @@ class counter_mod_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1582,6 +1768,8 @@ class counter_mod_failed_error_msg(error_msg):
         assert(_err_type == 15)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")  # rstrip used to remove terminator
         return obj
 
@@ -1590,6 +1778,7 @@ class counter_mod_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1610,6 +1799,9 @@ class counter_mod_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
@@ -1622,7 +1814,7 @@ class insblock_failed_error_msg(error_msg):
     type = 1
     err_type = 16
 
-    def __init__(self, xid=None, code=None, device_id=None, err_str=None):
+    def __init__(self, xid=None, code=None, device_id=None, slotID=None, err_str=None):
         if xid != None:
             self.xid = xid
         else:
@@ -1635,6 +1827,10 @@ class insblock_failed_error_msg(error_msg):
             self.device_id = device_id
         else:
             self.device_id = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if err_str != None:
             self.err_str = err_str
         else:
@@ -1650,6 +1846,8 @@ class insblock_failed_error_msg(error_msg):
         packed.append(struct.pack("!H", self.err_type))
         packed.append(struct.pack("!H", self.code))
         packed.append(struct.pack("!L", self.device_id))
+        packed.append(struct.pack("!H", self.slotID))
+        packed.append('\x00' * 6)
         packed.append(struct.pack("!256s", self.err_str))
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
@@ -1670,6 +1868,8 @@ class insblock_failed_error_msg(error_msg):
         assert(_err_type == 16)
         obj.code = reader.read("!H")[0]
         obj.device_id = reader.read("!L")[0]
+        obj.slotID = reader.read("!H")[0]
+        reader.skip(6)
         obj.err_str = reader.read("!256s")[0].rstrip("\x00")
         return obj
 
@@ -1678,6 +1878,7 @@ class insblock_failed_error_msg(error_msg):
         if self.xid != other.xid: return False
         if self.code != other.code: return False
         if self.device_id != other.device_id: return False
+        if self.slotID != other.slotID: return False
         if self.err_str != other.err_str: return False
         return True
 
@@ -1698,13 +1899,16 @@ class insblock_failed_error_msg(error_msg):
                 q.text("device_id = ");
                 q.text("%#x" % self.device_id)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("err_str = ");
                 q.pp(self.err_str)
             q.breakable()
         q.text('}')
 
 error_msg.subtypes[16] = insblock_failed_error_msg
-
+"""
 class experimenter_error_msg(error_msg):
     subtypes = {}
 
@@ -1796,7 +2000,7 @@ class experimenter_error_msg(error_msg):
         q.text('}')
 
 error_msg.subtypes[65535] = experimenter_error_msg
-
+"""
 #-----echo request message, with no body-------------------------------------------
 
 class echo_request(message):
@@ -2061,7 +2265,7 @@ class features_reply(message):
     version = 4
     type = 6
 
-    def __init__(self, xid=None, dev_id=None, port_num=None, table_num=None, capabilities=None, vendor_id=None, dev_fw_id=None, dev_lkup_id=None):
+    def __init__(self, xid=None, dev_id=None, slot_id=None, port_num=None, table_num=None, capabilities=None, vendor_id=None, dev_fw_id=None, dev_lkup_id=None):
         if xid != None:
             self.xid = xid
         else:
@@ -2070,6 +2274,10 @@ class features_reply(message):
             self.dev_id = dev_id
         else:
             self.dev_id = 0
+        if slot_id != None:
+            self.slot_id = slot_id
+        else:
+            self.slot_id = 0
         if port_num != None:
             self.port_num = port_num
         else:
@@ -2103,10 +2311,11 @@ class features_reply(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!L", self.dev_id))
+        packed.append(struct.pack("!H", self.slot_id))
         packed.append(struct.pack("!H", self.port_num))
         packed.append(struct.pack("!H", self.table_num))
+        packed.append('\x00' * 2)
         packed.append(struct.pack("!L", self.capabilities))
-        packed.append('\x00' * 4)
         packed.append(struct.pack("!64s", self.vendor_id))
         packed.append(struct.pack("!64s", self.dev_fw_id))
         packed.append(struct.pack("!64s", self.dev_lkup_id))
@@ -2126,10 +2335,11 @@ class features_reply(message):
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
         obj.dev_id = reader.read("!L")[0]
+        obj.slot_id = reader.read("!H")[0]
         obj.port_num = reader.read("!H")[0]
         obj.table_num = reader.read("!H")[0]
+        reader.skip(2)
         obj.capabilities = reader.read("!L")[0]
-        reader.skip(4)
         obj.vendor_id = reader.read("!64s")[0].rstrip("\x00")
         obj.dev_fw_id = reader.read("!64s")[0].rstrip("\x00")
         obj.dev_lkup_id = reader.read("!64s")[0].rstrip("\x00")
@@ -2139,6 +2349,7 @@ class features_reply(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.dev_id != other.dev_id: return False
+        if self.slot_id != other.slot_id: return False
         if self.port_num != other.port_num: return False
         if self.table_num != other.table_num: return False
         if self.capabilities != other.capabilities: return False
@@ -2160,6 +2371,9 @@ class features_reply(message):
                 q.text(","); q.breakable()
                 q.text("dev_id = ");
                 q.text("%#x" % self.dev_id)
+                q.text(","); q.breakable()
+                q.text("slot_id = ");
+                q.text("%#x" % self.slot_id)
                 q.text(","); q.breakable()
                 q.text("port_num = ");
                 q.text("%#x" % self.port_num)
@@ -2245,11 +2459,15 @@ class get_config_reply(message):
     version = 4
     type = 8
 
-    def __init__(self, xid=None, flags=None, miss_send_len=None):
+    def __init__(self, xid=None, dev_id=None, flags=None, miss_send_len=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if dev_id != None:
+            self.dev_id = dev_id
+        else:
+            self.dev_id = 0
         if flags != None:
             self.flags = flags
         else:
@@ -2266,6 +2484,7 @@ class get_config_reply(message):
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
+        packed.append(struct.pack("!L", self.dev_id))
         packed.append(struct.pack("!H", self.flags))
         packed.append(struct.pack("!H", self.miss_send_len))
         length = sum([len(x) for x in packed])
@@ -2283,6 +2502,7 @@ class get_config_reply(message):
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
+        obj.dev_id = reader.read("!L")[0]
         obj.flags = reader.read("!H")[0]
         obj.miss_send_len = reader.read("!H")[0]
         return obj
@@ -2290,6 +2510,7 @@ class get_config_reply(message):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.dev_id != other.dev_id: return False
         if self.flags != other.flags: return False
         if self.miss_send_len != other.miss_send_len: return False
         return True
@@ -2304,6 +2525,9 @@ class get_config_reply(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("dev_id = ");
+                q.text("%#x" % self.dev_id)
                 q.text(","); q.breakable()
                 q.text("flags = ");
                 q.text("%#x" % self.flags)
@@ -2321,11 +2545,15 @@ class set_config(message):
     version = 4
     type = 9
 
-    def __init__(self, xid=None, flags=None, miss_send_len=None):
+    def __init__(self, xid=None, dev_id=None, flags=None, miss_send_len=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if dev_id != None:
+            self.dev_id = dev_id
+        else:
+            self.dev_id = 0
         if flags != None:
             self.flags = flags
         else:
@@ -2342,6 +2570,7 @@ class set_config(message):
         packed.append(struct.pack("!B", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
+        packed.append(struct.pack("!L", self.dev_id))
         packed.append(struct.pack("!H", self.flags))
         packed.append(struct.pack("!H", self.miss_send_len))
         length = sum([len(x) for x in packed])
@@ -2359,6 +2588,7 @@ class set_config(message):
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
+        obj.dev_id = reader.read("!L")[0]
         obj.flags = reader.read("!H")[0]
         obj.miss_send_len = reader.read("!H")[0]
         return obj
@@ -2366,6 +2596,7 @@ class set_config(message):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.dev_id != other.dev_id: return False
         if self.flags != other.flags: return False
         if self.miss_send_len != other.miss_send_len: return False
         return True
@@ -2380,6 +2611,9 @@ class set_config(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("dev_id = ");
+                q.text("%#x" % self.dev_id)
                 q.text(","); q.breakable()
                 q.text("flags = ");
                 q.text("%#x" % self.flags)
@@ -2787,7 +3021,7 @@ class resource_report(message):
     version = 4
     type = 13
 
-    def __init__(self, xid=None, resourceType=None, counter_num=None, meter_num=None, group_num=None, tab_res_desc=None):
+    def __init__(self, xid=None, slot_id=None, resourceType=None, counter_num=None, meter_num=None, group_num=None, tab_res_desc=None):
         if xid != None:
             self.xid = xid
         else:
@@ -2796,6 +3030,10 @@ class resource_report(message):
             self.resourceType = resourceType
         else:
             self.resourceType = None
+        if slot_id != None:
+            self.slot_id = slot_id
+        else:
+            self.slot_id = None
         if counter_num != None:
             self.counter_num = counter_num
         else:
@@ -2821,7 +3059,8 @@ class resource_report(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.resourceType))
-        packed.append('\x00' * 3)
+        packed.append('\x00' * 1)
+        packed.append(struct.pack("!H", self.slot_id))
         packed.append(struct.pack("!L", self.counter_num))
         packed.append(struct.pack("!L", self.meter_num))
         packed.append(struct.pack("!L", self.group_num))
@@ -2842,7 +3081,8 @@ class resource_report(message):
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
         obj.resourceType = reader.read("!B")[0]
-        reader.skip(3)
+        reader.skip(1)
+        obj.slot_id = reader.read("!H")[0]
         obj.counter_num = reader.read("!L")[0]
         obj.meter_num = reader.read("!L")[0]
         obj.group_num = reader.read("!L")[0]
@@ -2853,6 +3093,7 @@ class resource_report(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.resourceType != other.resourceType: return False
+        if self.slot_id != other.slot_id: return False
         if self.counter_num != other.counter_num: return False
         if self.meter_num != other.meter_num: return False
         if self.group_num != other.group_num: return False
@@ -2873,6 +3114,10 @@ class resource_report(message):
                 q.breakable()
                 q.text("resourceType = ");
                 q.text("%#x" % self.resourceType)
+                q.text(",");
+                q.breakable()
+                q.text("slot_id = ");
+                q.text("%#x" % self.slot_id)
                 q.text(",");
                 q.breakable()
                 q.text("counter_num = ");
@@ -5849,7 +6094,7 @@ class meter_mod(message):
     version = 4
     type = 30
 
-    def __init__(self, xid=None, command=None, rate=None, meter_id=None):
+    def __init__(self, xid=None, command=None, slotID=None,  meter_id=None, rate=None):
         if xid != None:
             self.xid = xid
         else:
@@ -5858,14 +6103,18 @@ class meter_mod(message):
             self.command = command
         else:
             self.command = 0
-        if rate != None:
-            self.rate = rate
+        if slotID != None:
+            self.slotID = slotID
         else:
-            self.rate = 0
+            self.slotID = 0
         if meter_id != None:
             self.meter_id = meter_id
         else:
             self.meter_id = 0
+        if rate != None:
+            self.rate = rate
+        else:
+            self.rate = 0
         return
 
     def pack(self):
@@ -5876,8 +6125,10 @@ class meter_mod(message):
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
         packed.append('/x00' * 1)
-        packed.append(struct.pack("!H", self.rate))
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.meter_id))
+        packed.append(struct.pack("!L", self.rate))
+        packed.append('/x00' * 4)
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
@@ -5900,14 +6151,17 @@ class meter_mod(message):
         obj.xid = reader.read("!L")[0]
         obj.command = reader.read("!B")[0]
         reader.skip(1)
-        obj.rate = reader.read("!H")[0]
+        obj.slotID = reader.read("!H")[0]
         obj.meter_id = reader.read("!L")[0]
+        obj.rate = reader.read("!L")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.command != other.command: return False
+        if self.slotID != other.slotID: return False
         if self.rate != other.rate: return False
         if self.meter_id != other.meter_id: return False
         return True
@@ -5926,6 +6180,9 @@ class meter_mod(message):
                 q.text("command = ");
                 q.text("%#x" % self.command)
                 q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(","); q.breakable()
                 q.text("rate = ");
                 q.text("%#x" % self.rate)
                 q.text(","); q.breakable()
@@ -5941,19 +6198,23 @@ class meter_add(message):
     type = 30
     command = 0
 
-    def __init__(self, xid=None, rate=None, meter_id=None):
+    def __init__(self, xid=None, slotID=None, meter_id=None, rate=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
-        if rate != None:
-            self.rate = rate
+        if slotID != None:
+            self.slotID = slotID
         else:
-            self.rate = 0
+            self.slotID = 0
         if meter_id != None:
             self.meter_id = meter_id
         else:
             self.meter_id = 0
+        if rate != None:
+            self.rate = rate
+        else:
+            self.rate = 0
         return
 
     def pack(self):
@@ -5964,8 +6225,10 @@ class meter_add(message):
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
         packed.append('/x00' * 1)
-        packed.append(struct.pack("!H", self.rate))
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.meter_id))
+        packed.append(struct.pack("!L", self.rate))
+        packed.append('/x00' * 4)
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
@@ -5984,15 +6247,18 @@ class meter_add(message):
         _command = reader.read("!B")[0]
         assert(_command == 0)
         reader.skip(1)
-        obj.rate = reader.read("!H")[0]
+        obj.slotID = reader.read("!H")[0]
         obj.meter_id = reader.read("!L")[0]
+        obj.rate = reader.read("!L")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.rate != other.rate: return False
+        if self.slotID != other.slotID: return False
         if self.meter_id != other.meter_id: return False
+        if self.rate != other.rate: return False
         return True
 
     def pretty_print(self, q):
@@ -6005,12 +6271,13 @@ class meter_add(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
-                q.text(",");
-                q.breakable()
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(",");q.breakable()
                 q.text("rate = ");
                 q.text("%#x" % self.rate)
-                q.text(",");
-                q.breakable()
+                q.text(",");q.breakable()
                 q.text("meter_id = ");
                 q.text("%#x" % self.meter_id)
             q.breakable()
@@ -6023,19 +6290,23 @@ class meter_modify(message):
     type = 30
     command = 1
 
-    def __init__(self, xid=None, rate=None, meter_id=None):
+    def __init__(self, xid=None, slotID=None, meter_id=None, rate=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
-        if rate != None:
-            self.rate = rate
+        if slotID != None:
+            self.slotID = slotID
         else:
-            self.rate = 0
+            self.slotID = 0
         if meter_id != None:
             self.meter_id = meter_id
         else:
             self.meter_id = 0
+        if rate != None:
+            self.rate = rate
+        else:
+            self.rate = 0
         return
 
     def pack(self):
@@ -6046,8 +6317,10 @@ class meter_modify(message):
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
         packed.append('/x00' * 1)
-        packed.append(struct.pack("!H", self.rate))
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.meter_id))
+        packed.append(struct.pack("!L", self.rate))
+        packed.append('/x00' * 4)
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
@@ -6066,15 +6339,18 @@ class meter_modify(message):
         _command = reader.read("!B")[0]
         assert(_command == 1)
         reader.skip(1)
-        obj.rate = reader.read("!H")[0]
+        obj.slotID = reader.read("!H")[0]
         obj.meter_id = reader.read("!L")[0]
+        obj.rate = reader.read("!L")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.rate != other.rate: return False
+        if self.slotID != other.slotID: return False
         if self.meter_id != other.meter_id: return False
+        if self.rate != other.rate: return False
         return True
 
     def pretty_print(self, q):
@@ -6087,14 +6363,15 @@ class meter_modify(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
-                q.text(",");
-                q.breakable()
-                q.text("rate = ");
-                q.text("%#x" % self.rate)
-                q.text(",");
-                q.breakable()
+                q.text(",");q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
+                q.text(",");q.breakable()
                 q.text("meter_id = ");
                 q.text("%#x" % self.meter_id)
+                q.text(",");q.breakable()
+                q.text("rate = ");
+                q.text("%#x" % self.rate)
             q.breakable()
         q.text('}')
 
@@ -6106,11 +6383,15 @@ class meter_delete(message):
     type = 30
     command = 2
 
-    def __init__(self, xid=None, rate=None, meter_id=None):
+    def __init__(self, xid=None, slotID=None, meter_id=None, rate=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if rate != None:
             self.rate = rate
         else:
@@ -6129,8 +6410,10 @@ class meter_delete(message):
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
         packed.append('/x00' * 1)
-        packed.append(struct.pack("!H", self.rate))
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.meter_id))
+        packed.append(struct.pack("!L", self.rate))
+        packed.append('/x00' * 4)
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)
@@ -6149,15 +6432,18 @@ class meter_delete(message):
         _command = reader.read("!B")[0]
         assert(_command == 2)
         reader.skip(1)
-        obj.rate = reader.read("!H")[0]
+        obj.slotID = reader.read("!H")[0]
         obj.meter_id = reader.read("!L")[0]
+        obj.rate = reader.read("!L")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
-        if self.rate != other.rate: return False
+        if self.slotID != other.slotID: return False
         if self.meter_id != other.meter_id: return False
+        if self.rate != other.rate: return False
         return True
 
     def pretty_print(self, q):
@@ -6170,6 +6456,10 @@ class meter_delete(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(",");
+                q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(",");
                 q.breakable()
                 q.text("rate = ");
@@ -6191,7 +6481,7 @@ class counter_mod(message):
     version = 4
     type = 31
 
-    def __init__(self, xid=None, command=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, command=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
@@ -6200,6 +6490,10 @@ class counter_mod(message):
             self.command = command
         else:
             self.command = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6221,7 +6515,8 @@ class counter_mod(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6246,7 +6541,8 @@ class counter_mod(message):
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
         obj.command = reader.read("!B")[0]
-        reader.skip(3)
+        reader.skip(1)
+        obj.slotID = reader.read("!H")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6256,6 +6552,7 @@ class counter_mod(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.command != other.command: return False
+        if self.slotID != other.slotID: return False
         if self.counter_id != other.counter_id: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
@@ -6271,6 +6568,9 @@ class counter_mod(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("command = ");
                 q.text("%#x" % self.command)
@@ -6292,11 +6592,15 @@ class counter_add(message):
     version = 4
     type = 31
     command = 0
-    def __init__(self, xid=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6318,7 +6622,8 @@ class counter_add(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6339,7 +6644,8 @@ class counter_add(message):
         obj.xid = reader.read("!L")[0]
         _command = reader.read("!B")[0]
         assert(_command == 0)
-        reader.skip(3)
+        reader.skip(1)
+        obj.slotID = reader.read("!H")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6348,6 +6654,7 @@ class counter_add(message):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.slotID != other.slotID: return False
         if self.counter_id != other.counter_id: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
@@ -6363,6 +6670,9 @@ class counter_add(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("counter_id = ");
                 q.text("%#x" % self.counter_id)
@@ -6381,11 +6691,15 @@ class counter_delete(message):
     version = 4
     type = 31
     command = 1
-    def __init__(self, xid=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6407,7 +6721,8 @@ class counter_delete(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6429,6 +6744,7 @@ class counter_delete(message):
         _command = reader.read("!B")[0]
         assert(_command == 1)
         reader.skip(3)
+        obj.slotID = reader.read("!L")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6437,6 +6753,7 @@ class counter_delete(message):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.slotID != other.slotID: return False
         if self.counter_id != other.counter_id: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
@@ -6452,6 +6769,9 @@ class counter_delete(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("counter_id = ");
                 q.text("%#x" % self.counter_id)
@@ -6470,11 +6790,15 @@ class counter_clear(message):
     version = 4
     type = 31
     command = 2
-    def __init__(self, xid=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
             self.xid = None
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6496,7 +6820,8 @@ class counter_clear(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6517,7 +6842,8 @@ class counter_clear(message):
         obj.xid = reader.read("!L")[0]
         _command = reader.read("!B")[0]
         assert(_command == 2)
-        reader.skip(3)
+        reader.skip(1)
+        obj.slotID = reader.read("!H")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6526,6 +6852,7 @@ class counter_clear(message):
     def __eq__(self, other):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
+        if self.slotID != other.slotID: return False
         if self.counter_id != other.counter_id: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
@@ -6541,6 +6868,9 @@ class counter_clear(message):
                     q.text("%#x" % self.xid)
                 else:
                     q.text('None')
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("counter_id = ");
                 q.text("%#x" % self.counter_id)
@@ -6561,7 +6891,7 @@ class counter_request(message):
     version = 4
     type = 32
 
-    def __init__(self, xid=None, command=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, command=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
@@ -6570,6 +6900,10 @@ class counter_request(message):
             self.command = command
         else:
             self.command = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6591,7 +6925,8 @@ class counter_request(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6611,7 +6946,8 @@ class counter_request(message):
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
         obj.command = reader.read("!B")[0]
-        reader.skip(3)
+        reader.skip(1)
+        obj.slotID = reader.read("!H")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6621,6 +6957,7 @@ class counter_request(message):
         if type(self) != type(other): return False
         if self.xid != other.xid: return False
         if self.command != other.command: return False
+        if self.slotID != other.slotID: return False
         if self.counter_id != other.counter_id: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
@@ -6639,6 +6976,9 @@ class counter_request(message):
                 q.text(","); q.breakable()
                 q.text("command = ");
                 q.text("%#x" % self.command)
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("counter_id = ");
                 q.text("%#x" % self.counter_id)
@@ -6659,7 +6999,7 @@ class counter_reply(message):
     version = 4
     type = 33
 
-    def __init__(self, xid=None, command=None, counter_id=None, value=None, byte_value=None):
+    def __init__(self, xid=None, command=None, slotID=None, counter_id=None, value=None, byte_value=None):
         if xid != None:
             self.xid = xid
         else:
@@ -6668,6 +7008,10 @@ class counter_reply(message):
             self.command = command
         else:
             self.command = 0
+        if slotID != None:
+            self.slotID = slotID
+        else:
+            self.slotID = 0
         if counter_id != None:
             self.counter_id = counter_id
         else:
@@ -6689,7 +7033,8 @@ class counter_reply(message):
         packed.append(struct.pack("!H", 0)) # placeholder for length at index 2
         packed.append(struct.pack("!L", self.xid))
         packed.append(struct.pack("!B", self.command))
-        packed.append('/x00' * 3)
+        packed.append('/x00' * 1)
+        packed.append(struct.pack("!H", self.slotID))
         packed.append(struct.pack("!L", self.counter_id))
         packed.append(struct.pack("!Q", self.value))
         packed.append(struct.pack("!Q", self.byte_value))
@@ -6709,7 +7054,8 @@ class counter_reply(message):
         reader = orig_reader.slice(_length, 4)
         obj.xid = reader.read("!L")[0]
         obj.command = reader.read("!B")[0]
-        reader.skip(3)
+        reader.skip(1)
+        obj.slotID = reader.read("!H")[0]
         obj.counter_id = reader.read("!L")[0]
         obj.value = reader.read("!L")[0]
         obj.byte_value = reader.read("!Q")[0]
@@ -6720,6 +7066,7 @@ class counter_reply(message):
         if self.xid != other.xid: return False
         if self.command != other.command: return False
         if self.counter_id != other.counter_id: return False
+        if self.slotID != other.slotID: return False
         if self.value != other.value: return False
         if self.byte_value != other.byte_value: return False
         return True
@@ -6737,6 +7084,9 @@ class counter_reply(message):
                 q.text(","); q.breakable()
                 q.text("command = ");
                 q.text("%#x" % self.command)
+                q.text(","); q.breakable()
+                q.text("slotID = ");
+                q.text("%#x" % self.slotID)
                 q.text(","); q.breakable()
                 q.text("counter_id = ");
                 q.text("%#x" % self.counter_id)

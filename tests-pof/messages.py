@@ -23,11 +23,11 @@ from time import sleep
 #from FuncUtils import *  for now
 
 
-#@disabled
 class Hello(base_tests.SimpleDataPlane):
-    """Verify switch should be able to receive POFT_HELLO message"""
 
     def runTest(self):
+        time.sleep(1)
+
         logging.info("Running Hello test")
 
         # Send Hello message
@@ -36,15 +36,15 @@ class Hello(base_tests.SimpleDataPlane):
         self.controller.message_send(request)
 
         # Verify Hello message in response
-        logging.info("Waiting for a Hello on the control plane with same xid and version--pof")
-        (response, pkt) = self.controller.poll(exp_msg=ofp.POFT_HELLO,
+        logging.info("After handshake is done, switch will send an error msg when receive hello")
+        (response, pkt) = self.controller.poll(exp_msg=ofp.POFT_ERROR,
                                                timeout=1)
         self.assertTrue(response is not None,
-                        'Switch did not exchange hello message in return')
-        self.assertEqual(len(response), 8, 'length of response is not 8')
+                        'Switch did not receive error message')
+        self.assertTrue(response.err_type == ofp.POFET_BAD_REQUEST, 'error_type is not bad request')
+        self.assertTrue(response.code == ofp.POFBRC_BAD_TYPE, 'error_code is not bad type')
         self.assertTrue(response.version == 0x04, 'pof-version field is not 4')
 
-@group('smoke')
 class ErrorMsg(base_tests.SimpleProtocol):
     """
     Verify POFT_ERROR msg is implemented
@@ -56,6 +56,7 @@ class ErrorMsg(base_tests.SimpleProtocol):
     """
 
     def runTest(self):
+        time.sleep(1)
         logging.info("Running Error Msg test")
 
         # Send Echo Request
@@ -81,6 +82,7 @@ class Echo(base_tests.SimpleProtocol):
     b)  Verify switch responds back with echo-reply with same xid """
 
     def runTest(self):
+        time.sleep(1)
         logging.info("Running Echo test")
 
         logging.info("Sending Echo Request")
@@ -93,190 +95,95 @@ class Echo(base_tests.SimpleProtocol):
         self.assertEqual(request.xid, response.xid,
                          'response xid != request xid')
         self.assertTrue(response.version == 0x04, 'switch openflow-version field is not 0x04')
-        self.assertEqual(len(response.data), 0, 'response data non-empty')
 
 
 class FeaturesRequest(base_tests.SimpleProtocol): 
 
     """Verify Features_Request-Reply is implemented 
     a) Send POFT_FEATURES_REQUEST
-	b) Verify POFT_FEATURES_REPLY is received without errors"""
+    b) Verify POFT_FEATURES_REPLY is received without errors"""
 
     def runTest(self):
+        time.sleep(1)
         logging.info("Running Features_Request test")
-        
+
         of_ports = config["port_map"].keys()
         of_ports.sort()
-        
-        #Clear switch state
-        delete_all_flows(self.controller)
-        
+
         logging.info("Sending Features_Request")
         logging.info("Expecting Features_Reply")
 
         request = ofp.message.features_request()
         self.controller.message_send(request)
-        
+
         (response, pkt) = self.controller.poll(exp_msg=ofp.POFT_FEATURES_REPLY,
                                                timeout=2)
+        logging.info("receive features reply")
+
         self.assertTrue(response is not None, 
                         'Did not receive Features Reply')
-'''
+        self.assertEqual(response.type, ofp.POFT_FEATURES_REPLY, 'Response is not Features_reply')
+        self.assertEqual(response.xid, request.xid, 'Transaction id does not match')
+        self.assertTrue(response.port_num == 21,
+                        'Reply has an error at port_num')
+        self.assertTrue(response.table_num == 23,
+                        'Reply has an error at table_num')
 
-#@group('smoke')
-class FeaturesReplyBody(base_tests.SimpleProtocol):
-    """Verify the body of Features Reply message"""
-
-    def runTest(self):
-
-        logging.info("Running Features Reply Body test")
-
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-        self.assertTrue(len(of_ports) > 1, "Not enough ports for test")
-
-        # Sending Features_Request
-        logging.info("Sending Features_Request...")
-        request = ofp.message.features_request()
-        (reply, pkt) = self.controller.transact(request)
-        self.assertTrue(reply is not None, "Failed to get any reply")
-        self.assertEqual(reply.type, ofp.POFT_FEATURES_REPLY, 'Response is not Features_reply')
-        self.assertEqual(reply.xid, request.xid, 'Transaction id does not match')
-
-        """
-        supported_actions = []
-        if (reply.actions & 1 << ofp.POFAT_OUTPUT):
-            supported_actions.append('POFAT_OUTPUT')
-        if (reply.actions & 1 << ofp.POFAT_SET_VLAN_VID):
-            supported_actions.append('POFAT_SET_VLAN_VID')
-        if (reply.actions & 1 << ofp.POFAT_SET_VLAN_PCP):
-            supported_actions.append('POFAT_SET_VLAN_PCP')
-        if (reply.actions & 1 << ofp.POFAT_STRIP_VLAN):
-            supported_actions.append('POFAT_STRIP_VLAN')
-        if (reply.actions & 1 << ofp.POFAT_SET_DL_SRC):
-            supported_actions.append('POFAT_SET_DL_SRC')
-        if (reply.actions & 1 << ofp.POFAT_SET_DL_DST):
-            supported_actions.append('POFAT_SET_NW_SRC')
-        if (reply.actions & 1 << ofp.POFAT_SET_NW_DST):
-            supported_actions.append('POFAT_SET_NW_DST')
-        if (reply.actions & 1 << ofp.POFAT_SET_NW_TOS):
-            supported_actions.append('POFAT_SET_NW_TOS')
-        if (reply.actions & 1 << ofp.POFAT_SET_TP_SRC):
-            supported_actions.append('POFAT_SET_TP_SRC')
-        if (reply.actions & 1 << ofp.POFAT_SET_TP_DST):
-            supported_actions.append('POFAT_SET_TP_DST')
-        if (reply.actions & 1 << ofp.POFAT_EXPERIMENTER):
-            supported_actions.append('POFAT_EXPERIMENTER')
-        if (reply.actions & 1 << ofp.POFAT_ENQUEUE):
-            supported_actions.append('POFAT_ENQUEUE')
-        
-        self.assertTrue(len(supported_actions) != 0, "Features Reply did not contain actions supported by sw")
-        # Verify switch supports the Required Actions i.e Forward
-        self.assertTrue('POFAT_OUTPUT' in supported_actions, "Required Action--Forward is not supported ")
-        logging.info("Supported Actions: " + str(supported_actions))
-        """
-        supported_capabilities = []
-        if (reply.capabilities & 1 << ofp.POFC_FLOW_STATS):
-            supported_capabilities.append('POFC_FLOW_STATS')
-        if (reply.capabilities & 1 << ofp.POFC_TABLE_STATS):
-            supported_capabilities.append('POFC_TABLE_STATS')
-        if (reply.capabilities & 1 << ofp.POFC_PORT_STATS):
-            supported_capabilities.append('POFC_PORT_STATS')
-        if (reply.capabilities & 1 << ofp.POFC_GROUP_STATS):
-            supported_capabilities.append('POFC_GROUP_STATS')
-        if (reply.capabilities & 1 << ofp.POFC_IP_REASM):
-            supported_capabilities.append('POFC_IP_REASM')
-        if (reply.capabilities & 1 << ofp.POFC_QUEUE_STATS):
-            supported_capabilities.append('POFC_QUEUE_STATS')
-        if (reply.capabilities & 1 << ofp.POFC_PORT_BLOCKED):
-            supported_capabilities.append('POFC_PORT_BLOCKED')
-
-        logging.info("Supported Capabilities: " + str(supported_capabilities))
-
-        self.assertTrue(reply.dev_id != 0, "Features Reply did not contain datapath of the sw")
-        logging.info("Dev Id: " + str(reply.dev_id))
-
-        logging.info("Port Num: " + str(reply.port_num))
-
-        logging.info("Table Num: " + str(reply.table_num))
-
-        logging.info("Vendor Id: " + str(reply.vendor_id))
-
-        logging.info("Dev_fw_id: " + str(reply.dev_fw_id))
-
-        logging.info("Dev_lkup_id: " + str(reply.dev_lkup_id))
-'''
 
 class ConfigurationRequest(base_tests.SimpleProtocol):
-    
+
     """Check basic Get Config request is implemented
     a) Send POFT_GET_CONFIG_REQUEST
     b) Verify POFT_GET_CONFIG_REPLY is received without errors"""
 
     def runTest(self):
-
+        time.sleep(1)
         logging.info("Running Get_Configuration_Request test ")
-        
+
         of_ports = config["port_map"].keys()
         of_ports.sort()
-
-        #Clear switch state
-        delete_all_flows(self.controller)
 
         logging.info("Sending POFT_GET_CONFIG_REQUEST ")
         logging.info("Expecting POFT_GET_CONFIG_REPLY ")
 
         request = ofp.message.get_config_request()
         self.controller.message_send(request)
-        
-        (response, pkt) = self.controller.poll(exp_msg=ofp.POFT_GET_CONFIG_REPLY,
+
+        (reply, pkt) = self.controller.poll(exp_msg=ofp.POFT_GET_CONFIG_REPLY,
                                                timeout=2)
-        self.assertTrue(response is not None, 
-                        'Did not receive POFT_GET_CONFIG_REPLY')
-'''
-
-class GetConfigReply(base_tests.SimpleProtocol):
-    """Verify the body of POFT_GET_CONFIG_REPLY message """
-
-    def runTest(self):
-
-        logging.info("Running GetConfigReply Test")
-
-        # Send get_config_request
-        logging.info("Sending Get Config Request...")
-        request = ofp.message.get_config_request()
-        (reply, pkt) = self.controller.transact(request)
-
-        # Verify get_config_reply is recieved
-        logging.info("Expecting GetConfigReply ")
         self.assertTrue(reply is not None, "Failed to get any reply")
         self.assertEqual(reply.type, ofp.POFT_GET_CONFIG_REPLY, 'Response is not Config Reply')
         self.assertEqual(reply.xid, request.xid, 'Transaction id does not match')
 
-        if reply.miss_send_len == 0:
-            logging.info("the switch must send zero-size packet_in message")
-        else:
-            logging.info("miss_send_len: " + str(reply.miss_send_len))
+        logging.info(repr(pkt))
 
-        if reply.flags == 0:
-            logging.info("POFC_FRAG_NORMAL: No special handling for fragments.")
-        elif reply.flags == 1:
-            logging.info("POFC_FRAG_DROP: Drop fragments.")
-        elif reply.flags == 2:
-            logging.info("POFC_FRAG_REASM: ReasSsemble")
-        elif reply.flags == 3:
-            logging.info("POFC_FRAG_MASK")
+        (reply1, pkt1) = self.controller.poll(exp_msg=ofp.POFT_RESOURCE_REPORT,
+                                               timeout=2)
+        self.assertTrue(reply1 is not None, "Failed to get resource report")
+        self.assertEqual(reply1.type, ofp.POFT_RESOURCE_REPORT, 'Response is not resource report')
 
-'''
+        logging.info(repr(pkt1))
+ 
+        count = 0
+        while True:
+            (response2, pkt2) = self.controller.poll(exp_msg=ofp.POFT_PORT_STATUS, timeout=2)
+            self.assertTrue(response2 is not None,"Did not get get port status")
+            count = count+1
+            if count == 21:
+                break
+        self.assertTrue(count == 21, "do not receive 21 port_status")
+
+
 class SetConfig(base_tests.SimpleProtocol):
     """Verify POFT_SET_CONFIG is implemented"""
 
     def runTest(self):
 
         logging.info("Running Set_Config_Request Test")
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
+        #of_ports = config["port_map"].keys()
+        #of_ports.sort()
 
+        time.sleep(1)
         # Send get_config_request -- retrive miss_send_len field
         logging.info("Sending Get Config Request ")
         request = ofp.message.get_config_request()
@@ -332,10 +239,6 @@ class PacketIn(base_tests.SimpleDataPlane):
         of_ports.sort()
         ingress_port = of_ports[0]
 
-        # Clear Switch state
-        delete_all_flows(self.controller)
-        do_barrier(self.controller)
-
         logging.info("Sending a Simple tcp packet a dataplane port")
         logging.info("Expecting a packet_in event on the control plane")
 
@@ -346,7 +249,7 @@ class PacketIn(base_tests.SimpleDataPlane):
                      ", expecting packet_in on control plane")
 
         verify_packet_in(self, str(pkt), ingress_port, ofp.POFR_NO_MATCH)
-'''
+
 
 class PacketInSizeMiss(base_tests.SimpleDataPlane):
     """ When packet_in is triggered due to a flow table miss,
@@ -354,13 +257,10 @@ class PacketInSizeMiss(base_tests.SimpleDataPlane):
         miss_send_len field set in POFT_SET_CONFIG"""
 
     def runTest(self):
-
+        sleep(1)
         logging.info("Running PacketInSizeMiss Test")
         of_ports = config["port_map"].keys()
         of_ports.sort()
-
-        # Clear switch state
-        delete_all_flows(self.controller)
 
         # Send a set_config_request message
         miss_send_len = [0, 32, 64, 100]
@@ -373,17 +273,13 @@ class PacketInSizeMiss(base_tests.SimpleDataPlane):
 
             # Send packet to trigger packet_in event
             pkt = simple_tcp_packet()
-            match = parse.packet_to_flow_match(pkt)
-            self.assertTrue(match is not None, "Could not generate flow match from pkt")
-            match.wildcards = ofp.POFFW_ALL#???
-            match.in_port = of_ports[0]
             self.dataplane.send(of_ports[0], str(pkt))
 
             # Verify packet_in generated
             response = verify_packet_in(self, str(pkt), of_ports[0], ofp.POFR_NO_MATCH)
 
             # Verify buffer_id field and data field
-            if response.buffer_id == 0xFFFFFFFF:
+            if response.buffer_id == 0xFFFFFFFF:#ofp_no_buffer
                 self.assertTrue(len(response.data) == len(str(pkt)),
                                 "Buffer None here but packet_in is not a complete packet")
             elif (bytes == 0):
@@ -391,7 +287,7 @@ class PacketInSizeMiss(base_tests.SimpleDataPlane):
             else:
                 self.assertTrue(len(response.data) >= bytes, "PacketIn Size is not at least miss_send_len bytes")
 
-
+'''
 class PacketInSizeAction(base_tests.SimpleDataPlane):
     """When the packet is sent because of a "send to controller" action,
         verify the data sent in packet_in varies in accordance with the
@@ -571,8 +467,6 @@ class PortStatusMessage(base_tests.SimpleDataPlane):
 
 
 #resource_report, just used in reply config_request
-'''
-'''
 #pofswitch do not supported
 class PacketOut(base_tests.SimpleDataPlane):
     """Test packet out function
@@ -627,8 +521,6 @@ class PacketOut(base_tests.SimpleDataPlane):
                         str(pkt)[:len(str(outpkt))]))
                 self.assertEqual(str(outpkt), str(pkt)[:len(str(outpkt))],
                                  'Response packet does not match send packet')
-'''
-'''
 class ModifyStateAdd(base_tests.SimpleProtocol):
     
     """Check basic Flow Add request is implemented
@@ -717,8 +609,6 @@ class ModifyStateModify(base_tests.SimpleDataPlane):
         
         # Send the Test Packet and verify action implemented is A' (output to of_port[2])
         send_packet(self,pkt,of_ports[0],of_ports[2])
-'''
-'''
 #group_mod
 class GroupModAdd(base_tests.SimpleProtocol):
     """Check basic Group Add request is implemented
@@ -940,8 +830,6 @@ class PortModPacketIn(base_tests.SimpleDataPlane):
 
 
 #multipart_request & reply, pofswitch do not supported
-'''
-'''
 #pofswitch do not supported
 class BarrierRequestReply(base_tests.SimpleProtocol):
 
@@ -993,8 +881,6 @@ class QueueConfigReply(base_tests.SimpleProtocol):
 
 
 #get_async_request & reply & set_async
-'''
-'''
 
 #meter_mod
 

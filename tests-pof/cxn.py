@@ -86,6 +86,11 @@ class HandshakeNoFeaturesRequest(BaseHandshake):
         logging.info("Sending hello")
         self.controller.message_send(ofp.message.hello())
 
+        (response, pkt) = self.controller.poll(exp_msg=ofp.POFT_HELLO,
+                                               timeout=2)
+        self.assertTrue(response is not None, 'Do not receive msg from switch')
+        self.assertTrue(response.type == ofp.POFT_HELLO, 'Do not receive hello msg from switch')
+        
         logging.info("Features request not sent, waiting for timeout")
 
         # wait for controller to die
@@ -193,6 +198,22 @@ class CompleteHandshakeAndKeepAlive(BaseHandshake):
         self.assertEqual(request.xid, response.xid,
                          'response xid != request xid')
 
+        (response2, pkt2) = self.controller.poll(exp_msg=ofp.POFT_RESOURCE_REPORT,
+                                               timeout=2)
+        self.assertTrue(response2 is not None,
+                        "Did not get get resource report")
+        logging.info(repr(pkt2))
+
+        count = 0
+        while True:
+            (response3, pkt3) = self.controller.poll(exp_msg=ofp.POFT_PORT_STATUS, timeout=2)
+            self.assertTrue(response3 is not None,"Did not get get port status")
+            count = count+1
+            if count == 21:
+                break
+        self.assertTrue(count == 21, "do not receive 21 port_status")
+
+        time.sleep(2)
         logging.info("Send echo request, to verify the liveness of a controller-switch connection")
         request = ofp.message.echo_request()
         response, pkt = self.controller.transact(request)
@@ -202,3 +223,4 @@ class CompleteHandshakeAndKeepAlive(BaseHandshake):
                          'response is not echo reply')
         self.assertEqual(request.xid, response.xid,
                          'response xid != request xid')
+

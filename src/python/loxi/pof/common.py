@@ -1197,7 +1197,11 @@ class packet_queue(loxi.OFObject):
 #-----port desc structure----------------------------------------------------------
 class port_desc(loxi.OFObject):
 
-    def __init__(self, port_no=None, device_id=None, hw_addr=None, name=None, config=None, state=None, curr=None, advertised=None, supported=None, peer=None, curr_speed=None, max_speed=None, of_enable=None):
+    def __init__(self, slot_id=None, port_no=None, device_id=None, hw_addr=None, name=None, config=None, state=None, curr=None, advertised=None, supported=None, peer=None, curr_speed=None, max_speed=None, of_enable=None):
+        if slot_id != None:
+            self.slot_id = slot_id
+        else:
+            self.slot_id = 0
         if port_no != None:
             self.port_no = port_no
         else:
@@ -1254,7 +1258,8 @@ class port_desc(loxi.OFObject):
 
     def pack(self):
         packed = []
-        packed.append(util.pack_port_no(self.port_no))
+        packed.append(struct.pack("!H", self.slot_id))
+        packed.append(struct.pack("!H", self.port_no))
         packed.append(struct.pack("!L", self.device_id))
         #packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.hw_addr))
@@ -1277,7 +1282,8 @@ class port_desc(loxi.OFObject):
     @staticmethod
     def unpack(reader):
         obj = port_desc()
-        obj.port_no = util.unpack_port_no(reader)
+        obj.slot_id = reader.read("!H")[0]
+        obj.port_no = reader.read("!H")[0]
         #_length = reader.read("!H")[0]
         #orig_reader = reader
         #reader = orig_reader.slice(_length, 6)
@@ -1298,6 +1304,7 @@ class port_desc(loxi.OFObject):
 
     def __eq__(self, other):
         if type(self) != type(other): return False
+        if self.slot_id != other.slot_id: return False
         if self.port_no != other.port_no: return False
         if self.device_id != other.device_id: return False
         if self.hw_addr != other.hw_addr: return False
@@ -1318,8 +1325,11 @@ class port_desc(loxi.OFObject):
         with q.group():
             with q.indent(2):
                 q.breakable()
+                q.text("slot_id = ");
+                q.text("%#x", self.slot_id)
+                q.text(","); q.breakable()
                 q.text("port_no = ");
-                q.text(util.pretty_port(self.port_no))
+                q.text("%#x", self.port_no)
                 q.text(","); q.breakable()
                 q.text("device_id = ")
                 q.text("%#x" % self.device_id)

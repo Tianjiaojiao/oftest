@@ -15,7 +15,7 @@ def protocol(ver):
     """
     if ver == 4:
        import pof
-       return pof    
+       return pof
     raise ValueError
 
 class ProtocolError(Exception):
