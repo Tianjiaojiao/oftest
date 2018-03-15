@@ -56,9 +56,9 @@ class SimpleProtocol(BaseTest):
 
             request = ofp.message.features_request()
             reply, pkt = self.controller.transact(request)
-		
             self.assertTrue(reply is not None,
                             "Did not complete features_request for handshake")
+	    port_num = reply.port_num
             if reply.version == 1:
                 self.supported_actions = reply.actions
                 logging.info("Supported actions: " + hex(self.supported_actions))
@@ -70,6 +70,13 @@ class SimpleProtocol(BaseTest):
             reply, pkt = self.controller.transact(request)
             self.assertTrue(reply is not None,
                             "Did not complete get_config for handshake")
+            reply, pkt = self.controller.poll(ofp.POFT_RESOURCE_REPORT)
+            self.assertTrue(reply is not None,
+                            "Did not complete resorce_report for handshake")
+            for i in range(port_num):
+                reply, pkt = self.controller.poll(ofp.POFT_PORT_STATUS)
+                self.assertTrue(reply is not None,
+                                "Did not complete port_status for handshake")
 
         except:
             self.controller.kill()

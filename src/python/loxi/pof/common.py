@@ -713,7 +713,7 @@ hello_elem.subtypes[1] = hello_elem_versionbitmap
 
 class pof_match(loxi.OFObject):
 
-    def __init__(self, field_id=None, offset=None):
+    def __init__(self, field_id=None, offset=None, len=None):
         if field_id != None:
             self.field_id = field_id
         else:
@@ -722,16 +722,18 @@ class pof_match(loxi.OFObject):
             self.offset = offset
         else:
             self.offset = 0
+        if len != None:
+            self.len = len
+        else:
+            self.len = 0
         return
 
     def pack(self):
         packed = []
         packed.append(struct.pack("!H", self.field_id))
         packed.append(struct.pack("!H", self.offset))
-        packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
+        packed.append(struct.pack("!H", self.len)) # placeholder for length at index 1
         packed.append('\x00' * 2)
-        length = sum([len(x) for x in packed])
-        packed[2] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
@@ -766,7 +768,7 @@ class pof_match(loxi.OFObject):
 
 class pof_match_x(loxi.OFObject):
 
-    def __init__(self, field_id=None, offset=None, value=None, mask=None):
+    def __init__(self, field_id=None, offset=None, value=None, mask=None, len=None):
         if field_id != None:
             self.field_id = field_id
         else:
@@ -783,18 +785,22 @@ class pof_match_x(loxi.OFObject):
             self.mask = mask
         else:
             self.mask = []
+        if len != None:
+            self.len = len
+        else:
+            self.len = 0
         return
 
     def pack(self):
         packed = []
         packed.append(struct.pack("!H", self.field_id))
         packed.append(struct.pack("!H", self.offset))
-        packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
+        packed.append(struct.pack("!H", self.len)) # placeholder for length at index 1
         packed.append('\x00' * 2)
-        packed.append(struct.pack("!16i", self.value))
-        packed.append(struct.pack("!16i", self.mask))
-        length = sum([len(x) for x in packed])
-        packed[2] = struct.pack("!H", length)
+        for i in range(16):
+            packed.append(struct.pack("!B", self.value[i]))
+        for i in range(16):
+            packed.append(struct.pack("!B", self.mask[i]))
         return ''.join(packed)
 
     @staticmethod
@@ -1261,7 +1267,6 @@ class port_desc(loxi.OFObject):
         packed.append(struct.pack("!H", self.slot_id))
         packed.append(struct.pack("!H", self.port_no))
         packed.append(struct.pack("!L", self.device_id))
-        #packed.append(struct.pack("!H", 0)) # placeholder for length at index 1
         packed.append(struct.pack("!6B", *self.hw_addr))
         packed.append('\x00' * 2)
         packed.append(struct.pack("!64s", self.name))
@@ -1275,8 +1280,6 @@ class port_desc(loxi.OFObject):
         packed.append(struct.pack("!L", self.max_speed))
         packed.append(struct.pack("!B", self.of_enable))
         packed.append('\x00' * 7)
-        #length = sum([len(x) for x in packed])
-        #packed[1] = struct.pack("!H", length)
         return ''.join(packed)
 
     @staticmethod
@@ -1284,9 +1287,6 @@ class port_desc(loxi.OFObject):
         obj = port_desc()
         obj.slot_id = reader.read("!H")[0]
         obj.port_no = reader.read("!H")[0]
-        #_length = reader.read("!H")[0]
-        #orig_reader = reader
-        #reader = orig_reader.slice(_length, 6)
         obj.device_id = reader.read("!L")[0]
         obj.hw_addr = list(reader.read('!6B'))
         reader.skip(2)
@@ -3356,4 +3356,5 @@ class uint8(loxi.OFObject):
         q.text('}')
 
 
-match = pof_match
+match = pof_match()
+match_x = pof_match_x()

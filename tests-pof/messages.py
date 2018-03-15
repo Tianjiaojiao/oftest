@@ -10,6 +10,8 @@ import logging
 import unittest
 import random
 import time
+import os
+import copy
 
 from oftest import config
 import oftest.controller as controller
@@ -287,7 +289,6 @@ class PacketInSizeMiss(base_tests.SimpleDataPlane):
             else:
                 self.assertTrue(len(response.data) >= bytes, "PacketIn Size is not at least miss_send_len bytes")
 
-'''
 class PacketInSizeAction(base_tests.SimpleDataPlane):
     """When the packet is sent because of a "send to controller" action,
         verify the data sent in packet_in varies in accordance with the
@@ -299,115 +300,67 @@ class PacketInSizeAction(base_tests.SimpleDataPlane):
         of_ports = config["port_map"].keys()
         of_ports.sort()
 
-        # Clear switch state
-        delete_all_flows(self.controller)
-
         # Create a simple tcp packet
         pkt = simple_tcp_packet()
-        match = parse.packet_to_flow_match(pkt)
-        self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.POFFW_ALL#???
-        match.in_port = of_ports[0]
 
-        max_len = [0, 32, 64, 100]
+        # Set value and mask
+        list = []
+        for i in range(16):
+            list.append(0x00)
+        value = list
+        value[0] = 0x06
+        mask = copy.deepcopy(list)
+        mask[0] = 0xff
 
-        for bytes in max_len:
+        match_table = ofp.match
+        match_table.field_id = 0x8000
+        match_table.offset = 184 #tcp
+        match_table.len = 8
 
-            # Insert a flow entry with action --output to controller
-            request = ofp.message.flow_add()
-            request.match = match
-            request.buffer_id = 0xffffffff
-            act = ofp.action.output()
-            act.port = ofp.POFP_CONTROLLER
-            act.max_len = bytes
-            request.actions.append(act)
+        match_flow = ofp.match_x
+        match_flow.field_id = 0x8000
+        match_flow.offset = 184 #tcp
+        match_flow.len = 8
+        match_flow.value = value
+        match_flow.mask = mask#em
 
-            logging.info("Inserting flow....")
-            self.controller.message_send(request)
-            do_barrier(self.controller)
-
-            # Send packet matching the flow
-            logging.debug("Sending packet to dp port " + str(of_ports[0]))
-            self.dataplane.send(of_ports[0], str(pkt))
-
-            # Verifying packet_in recieved on the control plane
-            response = verify_packet_in(self, str(pkt), of_ports[0], ofp.POFR_ACTION)
-
-            # Verify buffer_id field and data field
-            if response.buffer_id != 0xFFFFFFFF:
-                self.assertTrue(len(response.data) <= bytes, "Packet_in size is greater than max_len field")
-            else:
-                self.assertTrue(len(response.data) == len(str(pkt)),
-                                "Buffer None here but packet_in is not a complete packet")
-
-
-class PacketInBodyMiss(base_tests.SimpleDataPlane):
-    """Verify the packet_in message body,
-    when packet_in is triggered due to a flow table miss"""
-
-    def runTest(self):
-        logging.info("Running PacketInBodyMiss Test")
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-
-        # Clear switch state
-        delete_all_flows(self.controller)
-
-        # Set miss_send_len field
-        logging.info("Sending  set_config_request to set miss_send_len... ")
-        req = ofp.message.set_config()
-        req.miss_send_len = 65535
-        self.controller.message_send(req)
+        # Insert a table
+        msg = ofp.message.table_add()
+        msg.table_id = 0
+        msg.table_type = 0
+        msg.match_field_num = 1
+        msg.table_name = "first flow table"
+        msg.size = 2 #the table could add two entry
+        msg.match = []
+        msg.match.append(match_table)
+        msg.key_len = 0
+        for m in msg.match:
+            msg.key_len += m.len
+        print(msg.key_len)
+        self.controller.message_send(msg)
         sleep(1)
 
-        # Send packet to trigger packet_in event
-        pkt = simple_tcp_packet()
-        match = parse.packet_to_flow_match(pkt)
-        self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.POFFW_ALL#???
-        match.in_port = of_ports[0]
-        self.dataplane.send(of_ports[0], str(pkt))
-
-        # Verify packet_in generated
-        response = verify_packet_in(self, str(pkt), of_ports[0], ofp.POFR_NO_MATCH)
-
-        # Verify Frame Total Length Field in Packet_in
-        self.assertEqual(response.total_len, len(str(pkt)), "PacketIn total_len field is incorrect")
-
-        # Verify data field
-        self.assertTrue(len(response.data) == len(str(pkt)), "Complete Data packet was not sent")
-
-
-class PacketInBodyAction(base_tests.SimpleDataPlane):
-    """Verify the packet_in message body, when packet_in is generated due to action output to controller"""
-
-    def runTest(self):
-        logging.info("Running PacketInBodyAction Test")
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-
-        # Clear switch state
-        delete_all_flows(self.controller)
-
-        # Create a simple tcp packet
-        pkt = simple_tcp_packet()
-        match = parse.packet_to_flow_match(pkt)
-        self.assertTrue(match is not None, "Could not generate flow match from pkt")
-        match.wildcards = ofp.POFFW_ALL#???
-        match.in_port = of_ports[0]
-
-        # Insert a flow entry with action output to controller
-        request = ofp.message.flow_add()
-        request.match = match
+        # Insert a flow entry with action --output to controller
         act = ofp.action.output()
-        act.port = ofp.POFP_CONTROLLER
-        act.max_len = 65535  # Send the complete packet and do not buffer
-        request.actions.append(act)
+        act.portId_type = 0
+        act.value = ofp.POFP_CONTROLLER
+
+        ins = ofp.instruction.apply_actions()
+        ins.action_num = 1
+        ins.actions = []
+        ins.actions.append(act)
+
+        request = ofp.message.flow_add()
+        request.match = []
+        request.match.append(match_flow)
+        request.match_field_num = 1
+        request.instruction_num = 1
+        request.table_id = 0
+        request.instructions = []
+        request.instructions.append(ins)
 
         logging.info("Inserting flow....")
         self.controller.message_send(request)
-        do_barrier(self.controller)
-
         # Send packet matching the flow
         logging.debug("Sending packet to dp port " + str(of_ports[0]))
         self.dataplane.send(of_ports[0], str(pkt))
@@ -415,47 +368,41 @@ class PacketInBodyAction(base_tests.SimpleDataPlane):
         # Verifying packet_in recieved on the control plane
         response = verify_packet_in(self, str(pkt), of_ports[0], ofp.POFR_ACTION)
 
-        # Verify Frame Total Length Field in Packet_in
-        self.assertEqual(response.total_len, len(str(pkt)), "PacketIn total_len field is incorrect")
-
-        # verify the data field
-        self.assertEqual(len(response.data), len(str(pkt)), "Complete Data Packet was not sent")
-
-
+        # Verify buffer_id field and data field
+        if response.buffer_id != 0xFFFFFFFF:
+            self.assertTrue(len(response.data) <= bytes, "Packet_in size is greater than max_len field")
+        else:
+            self.assertTrue(len(response.data) == len(str(pkt)),
+                                "Buffer None here but packet_in is not a complete packet")
+        sleep(5)
 #flow_removed, pofswitch do not supported
 
 
-@nonstandard
-class PortStatusMessage(base_tests.SimpleDataPlane):
+class PortStatus(base_tests.SimpleDataPlane):
     """Verify Port Status Messages are sent to the controller
     whenever physical ports are added, modified or deleted"""
 
     def runTest(self):
-
         logging.info("Running PortStatusMessage Test")
-        of_ports = config["port_map"].keys()
-
-        # Clear switch state
-        delete_all_flows(self.controller)
 
         # Bring down the port by shutting the interface connected
         try:
             logging.info("Bringing down the interface ..")
-            default_port_num = 0
-            num = test_param_get('port', default=default_port_num)
-            self.dataplane.port_down(of_ports[num])
+            os.system("ifconfig eth1 down")#should to ensure eth1 is up
+            #self.dataplane.port_down(of_ports[0]) will report a socket error
 
             # Verify Port Status message is recieved with reason-- Port Deleted
             logging.info("Verify PortStatus-Down message is recieved on the control plane ")
             (response, raw) = self.controller.poll(ofp.POFT_PORT_STATUS, timeout=15)
             self.assertTrue(response is not None,
                             'Port Status Message not generated')
-            self.assertEqual(response.reason, ofp.POFPR_DELETE, "The reason field of Port Status Message is incorrect")
+            self.assertEqual(response.reason, ofp.POFPR_MODIFY, "The reason field of Port Status Message is incorrect")
 
         # Bring up the port by starting the interface connected
         finally:
             logging.info("Bringing up the interface ...")
-            self.dataplane.port_up(of_ports[num])
+            os.system("ifconfig eth1 up")
+            #self.dataplane.port_up(of_ports[num])
 
         # Verify Port Status message is recieved with reason-- Port Added
         logging.info("Verify Port Status Up message is received")
@@ -463,10 +410,12 @@ class PortStatusMessage(base_tests.SimpleDataPlane):
 
         self.assertTrue(response is not None,
                         'Port Status Message not generated')
-        self.assertEqual(response.reason, ofp.POFPR_ADD, "The reason field of Port Status Message is incorrect")
+        self.assertEqual(response.reason, ofp.POFPR_MODIFY, "The reason field of Port Status Message is incorrect")
+        (response, raw) = self.controller.poll(ofp.POFT_PORT_STATUS, timeout=15)
 
 
 #resource_report, just used in reply config_request
+'''
 #pofswitch do not supported
 class PacketOut(base_tests.SimpleDataPlane):
     """Test packet out function
@@ -521,34 +470,10 @@ class PacketOut(base_tests.SimpleDataPlane):
                         str(pkt)[:len(str(outpkt))]))
                 self.assertEqual(str(outpkt), str(pkt)[:len(str(outpkt))],
                                  'Response packet does not match send packet')
-class ModifyStateAdd(base_tests.SimpleProtocol):
-    
-    """Check basic Flow Add request is implemented
-    a) Send  POFT_FLOW_MOD , command = POFFC__ADD 
-    c) Send pof_table_stats request , verify active_count=1 in reply"""
-
-    def runTest(self):
-
-        logging.info("Running Modify_State_Add test")
-
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-        
-        #Clear switch state
-        delete_all_flows(self.controller)
-
-        logging.info("Inserting a flow entry")
-        logging.info("Expecting active_count=1 in table_stats_reply")
-
-        #Insert a flow entry matching on ingress_port
-        (pkt,match) = wildcard_all_except_ingress(self,of_ports)
-
-        # Send Table_Stats_Request and verify flow gets inserted.
-        verify_tablestats(self,expect_active=1)
 
 
 class ModifyStateDelete(base_tests.SimpleProtocol):
-    
+
     """Check Basic Flow Delete request is implemented
     a) Send POFT_FLOW_MOD, command = POFFC__ADD
     b) Send pof_table_stats request , verify active_count=1 in reply
@@ -561,12 +486,6 @@ class ModifyStateDelete(base_tests.SimpleProtocol):
 
         of_ports = config["port_map"].keys()
         of_ports.sort()
-
-        #Clear switch state
-        delete_all_flows(self.controller)
-
-        logging.info("Inserting a flow entry and then deleting it")
-        logging.info("Expecting the active_count=0 in table_stats_reply")
 
         #Insert a flow matching on ingress_port 
         (pkt,match) = wildcard_all_except_ingress(self,of_ports)
@@ -581,34 +500,6 @@ class ModifyStateDelete(base_tests.SimpleProtocol):
         verify_tablestats(self,expect_active=0)
 
 
-class ModifyStateModify(base_tests.SimpleDataPlane):
-    
-    """Verify basic Flow Modify request is implemented
-    a) Send POFT_FLOW_MOD, command = POFFC__ADD, Action A 
-    b) Send POFT_FLOW_MOD, command = POFFC__MODIFY , with output action A'
-    c) Send a packet matching the flow, verify packet implements action A' """
-
-    def runTest(self):
-
-        logging.info("Running Modify_State_Modify test")
-
-        of_ports = config["port_map"].keys()
-        of_ports.sort()
-
-        #Clear switch state
-        delete_all_flows(self.controller)
-
-        logging.info("Inserting a flow entry and then modifying it")
-        logging.info("Expecting the Test Packet to implement the modified action")
-
-        # Insert a flow matching on ingress_port with action A (output to of_port[1])    
-        (pkt,match) = wildcard_all_except_ingress(self,of_ports)
-  
-        # Modify the flow action (output to of_port[2])
-        modify_flow_action(self,of_ports,match)
-        
-        # Send the Test Packet and verify action implemented is A' (output to of_port[2])
-        send_packet(self,pkt,of_ports[0],of_ports[2])
 #group_mod
 class GroupModAdd(base_tests.SimpleProtocol):
     """Check basic Group Add request is implemented
@@ -836,7 +727,7 @@ class BarrierRequestReply(base_tests.SimpleProtocol):
     """ Check basic Barrier request is implemented
     a) Send POFT_BARRIER_REQUEST
     c) Verify POFT_BARRIER_REPLY is recieved"""
-    
+
     def runTest(self):
 
         logging.info("Running Barrier_Request_Reply test")

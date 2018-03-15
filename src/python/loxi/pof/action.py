@@ -63,11 +63,11 @@ class action(loxi.OFObject):
 class output(action):
     type = 0
 
-    def __init__(self, output_port_id=None, metadata_offset=None, metadata_len=None, packet_offset=None):
-        if output_port_id != None:
-            self.output_port_id = output_port_id
+    def __init__(self, portId_type=None, metadata_offset=None, metadata_len=None, packet_offset=None, value=None, field=None):
+        if portId_type != None:
+            self.portId_type = portId_type
         else:
-            self.output_port_id = 0
+            self.portId_type = 0
         if metadata_offset != None:
             self.metadata_offset = metadata_offset
         else:
@@ -80,17 +80,30 @@ class output(action):
             self.packet_offset = packet_offset
         else:
             self.packet_offset = 0
+        if value != None:
+            self.value = value
+        else:
+            self.value = 0
+        if field != None:
+            self.field = field
+        else:
+            self.field = ofp.match
         return
 
     def pack(self):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append(struct.pack("!L", self.output_port_id))
+        packed.append(struct.pack("!B", self.portId_type))
+        packed.append('\x00' * 1)
         packed.append(struct.pack("!H", self.metadata_offset))
         packed.append(struct.pack("!H", self.metadata_len))
         packed.append(struct.pack("!H", self.packet_offset))
-        packed.append('\x00' * 6)
+        if self.portId_type == 0:
+            packed.append(struct.pack("!L", self.value))
+            packed.append('\x00' * 4)
+        else:
+            packed.append(self.field.pack())
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -103,11 +116,16 @@ class output(action):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
-        obj.output_port_id = reader.read("!L")[0]#util.unpack_port_no(reader)
+        obj.portId_type = reader.read("!B")[0]#util.unpack_port_no(reader)
+        reader.skip(1)
         obj.metadata_offset = reader.read("!H")[0]
         obj.metadata_len = reader.read("!H")[0]
         obj.packet_offset = reader.read("!H")[0]
-        reader.skip(6)
+        if obj.portID_type == 0:
+            obj.value = reader.read("!L")[0]
+            reader.skip(4)
+        else:
+            obj.field = pof_match.unpack(reader)
         return obj
 
     def __eq__(self, other):
@@ -146,7 +164,7 @@ class set_field(action):
         if field_setting != None:
             self.field_setting = field_setting
         else:
-            self.field_setting = None
+            self.field_setting = ofp.match_x
         return
 
     def pack(self):
@@ -168,7 +186,7 @@ class set_field(action):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
-        obj.field_setting = ofp.oxm.oxm.unpack(reader)
+        obj.field_setting = ofp.match_x.unpack(reader)
         return obj
 
     def __eq__(self, other):

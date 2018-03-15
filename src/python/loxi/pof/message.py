@@ -3547,8 +3547,18 @@ class flow_add(flow_mod):
         packed.append(struct.pack("!L", self.index))
         packed.append(struct.pack("!H", self.slotID))
         packed.append('\x00' * 2)
-        packed.append(loxi.generic_util.pack_list(self.match))#?how to express the num
+        packed.append(loxi.generic_util.pack_list(self.match))
+        if len(self.match) < 8:
+            empty_match = [ofp.match_x for i in range(len(self.match), 8)]
+            packed.append(loxi.generic_util.pack_list(empty_match))
+        elif len(self.match) > 8:
+            raise Exception('too much match_x!')
         packed.append(loxi.generic_util.pack_list(self.instructions))
+        instructions_len = len(packed[len(packed)-1])
+        if instructions_len < 296:
+            packed.append('\x00' * (296 - instructions_len))
+        elif instructions_len > 296:
+            raise Exception('too much len instructions!')
         length = sum([len(x) for x in packed])
         packed[2] = struct.pack("!H", length)
         return ''.join(packed)

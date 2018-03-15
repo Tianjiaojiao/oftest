@@ -28,7 +28,7 @@ class instruction(loxi.OFObject):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
-        packed.append('/x00' * 4)
+        packed.append('\x00' * 4)
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -45,6 +45,7 @@ class instruction(loxi.OFObject):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
@@ -52,13 +53,6 @@ class instruction(loxi.OFObject):
         if self.type != other.type: return False
         return True
 
-    def pretty_print(self, q):
-        q.text("instruction {")
-        with q.group():
-            with q.indent(2):
-                q.breakable()
-            q.breakable()
-        q.text('}')
 
 class goto_table(instruction):
     type = 1
@@ -86,6 +80,7 @@ class goto_table(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!B", self.next_table_id))
         packed.append(struct.pack("!B", self.match_field_num))
         packed.append(struct.pack("!H", self.packet_offest))
@@ -103,6 +98,7 @@ class goto_table(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.next_table_id = reader.read("!B")[0]
         obj.match_field_num = reader.read("!B")[0]
         obj.packet_offest = reader.read("!H")[0]
@@ -161,9 +157,11 @@ class write_metadata(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!H", self.metadata_offset))
         packed.append(struct.pack("!H", self.len))
-        packed.append(struct.pack("!L", self.value))
+        packed.append(struct.pack("!16B", self.value))
+        packed.append('\x00' * 4)
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -176,9 +174,11 @@ class write_metadata(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.metadata_offset = reader.read("!H")[0]
         obj.len = reader.read("!H")[0]
-        obj.value = reader.read("!L")[0]
+        obj.value = reader.read("!16B")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
@@ -275,9 +275,10 @@ class apply_actions(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!B", self.action_num))
         packed.append('\x00' * 7)
-        packed.append(loxi.generic_util.pack_list(self.actions))#??
+        packed.append(loxi.generic_util.pack_list(self.actions))
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -290,6 +291,7 @@ class apply_actions(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.action_num = reader.read("!B")[0]
         reader.skip(7)
         obj.actions = loxi.generic_util.unpack_list(reader, ofp.action.action.unpack)
@@ -372,6 +374,7 @@ class meter(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!L", self.meter_id))
         packed.append('\x00' * 4)
         length = sum([len(x) for x in packed])
@@ -386,7 +389,9 @@ class meter(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.meter_id = reader.read("!L")[0]
+        reader.skip(4)
         return obj
 
     def __eq__(self, other):
@@ -428,6 +433,7 @@ class write_metadata_from_packet(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!H", self.metadata_offset))
         packed.append(struct.pack("!H", self.packet_offset))
         packed.append(struct.pack("!H", self.len))
@@ -444,9 +450,11 @@ class write_metadata_from_packet(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.metadata_offset = reader.read("!H")[0]
         obj.packet_offset = reader.read("!H")[0]
         obj.len = reader.read("!H")[0]
+        reader.skip(2)
         return obj
 
     def __eq__(self, other):
@@ -496,10 +504,11 @@ class goto_direct_table(instruction):
         packed = []
         packed.append(struct.pack("!H", self.type))
         packed.append(struct.pack("!H", 0)) # placeholder for len at index 1
+        packed.append('\x00' * 4)
         packed.append(struct.pack("!B", self.next_table_id))
         packed.append('\x00' * 1)
         packed.append(struct.pack("!H", self.packet_offset))
-        packed.append(struct.pack("!L", self.table_entry_index))
+        packed.append(struct.pack("!L", self.table_entry_index))#??union
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -512,6 +521,7 @@ class goto_direct_table(instruction):
         _len = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_len, 4)
+        reader.skip(4)
         obj.next_table_id = reader.read("!B")[0]
         reader.skip(1)
         obj.packet_offset = reader.read("!H")[0]
