@@ -85,7 +85,7 @@ class goto_table(instruction):
         packed.append(struct.pack("!B", self.match_field_num))
         packed.append(struct.pack("!H", self.packet_offest))
         packed.append('\x00' * 4)
-        packed.append(loxi.generic_util.pack_list(self.match))#??
+        packed.append(loxi.generic_util.pack_list(self.match))#8
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
         return ''.join(packed)
@@ -150,7 +150,7 @@ class write_metadata(instruction):
         if value != None:
             self.value = value
         else:
-            self.value = 0
+            self.value = []
         return
 
     def pack(self):
@@ -160,7 +160,8 @@ class write_metadata(instruction):
         packed.append('\x00' * 4)
         packed.append(struct.pack("!H", self.metadata_offset))
         packed.append(struct.pack("!H", self.len))
-        packed.append(struct.pack("!16B", self.value))
+        for i in range(16):
+            packed.append(struct.pack("!B", self.value[i]))
         packed.append('\x00' * 4)
         length = sum([len(x) for x in packed])
         packed[1] = struct.pack("!H", length)
@@ -177,7 +178,8 @@ class write_metadata(instruction):
         reader.skip(4)
         obj.metadata_offset = reader.read("!H")[0]
         obj.len = reader.read("!H")[0]
-        obj.value = reader.read("!16B")[0]
+        for i in range(16):
+            obj.value.append(reader.read("!B")[0])
         reader.skip(4)
         return obj
 

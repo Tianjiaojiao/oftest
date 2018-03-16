@@ -811,8 +811,10 @@ class pof_match_x(loxi.OFObject):
         _length = reader.read("!H")[0]
         orig_reader = reader
         reader = orig_reader.slice(_length, 4)
-        obj.value = reader.read("!16i")[0]
-        obj.value = reader.read("!16i")[0]
+        for i in range(16):
+            obj.value.append(reader.read("!B")[0])
+        for i in range(16):
+            obj.mask.append(reader.read("!B")[0])
         return obj
 
     def __eq__(self, other):
