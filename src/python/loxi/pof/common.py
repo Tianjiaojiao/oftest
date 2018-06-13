@@ -772,7 +772,7 @@ class pof_match_x(loxi.OFObject):
         if field_id != None:
             self.field_id = field_id
         else:
-            self.field_id = None
+            self.field_id = 0
         if offset != None:
             self.offset = offset
         else:

@@ -8,7 +8,7 @@
 
 import const
 import port_desc_prop
-import meter_band
+#  import meter_band
 import table_mod_prop
 import instruction
 import queue_desc_prop
@@ -18,7 +18,7 @@ import common
 import action
 import role_prop
 import message
-import queue_stats_prop
+#  import queue_stats_prop
 import port_stats_prop
 import port_mod_prop
 import async_config_prop

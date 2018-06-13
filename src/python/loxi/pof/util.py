@@ -14,7 +14,7 @@ import instruction
 import oxm
 #import action_id
 #import instruction_id
-import meter_band
+#  import meter_band
 
 def pretty_mac(mac):
     return ':'.join(["%02x" % x for x in mac])

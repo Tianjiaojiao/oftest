@@ -213,7 +213,7 @@ class CompleteHandshakeAndKeepAlive(BaseHandshake):
                 break
         self.assertTrue(count == 21, "do not receive 21 port_status")
 
-        time.sleep(2)
+        time.sleep(15)
         logging.info("Send echo request, to verify the liveness of a controller-switch connection")
         request = ofp.message.echo_request()
         response, pkt = self.controller.transact(request)
@@ -223,4 +223,3 @@ class CompleteHandshakeAndKeepAlive(BaseHandshake):
                          'response is not echo reply')
         self.assertEqual(request.xid, response.xid,
                          'response xid != request xid')
-
